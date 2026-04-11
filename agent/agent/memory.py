@@ -7,6 +7,7 @@ import time
 import uuid
 import threading
 import os
+import tempfile
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Any, Optional, Iterator, TypeVar, Generic
@@ -238,6 +239,11 @@ class ShortTermMemory(BaseMemory):
             self._cleanup_expired_locked()
             return self._memory.copy()
 
+    def __len__(self) -> int:
+        with self._lock:
+            self._cleanup_expired_locked()
+            return len(self._memory)
+
     def get_context_string(self, limit: int = 10) -> str:
         recent: List[MemoryEntry] = self.get_recent(limit)
         if not recent:
@@ -355,18 +361,44 @@ class LongTermMemory(BaseMemory):
 
 
 class MemoryManager:
-    def __init__(
+    _instance: Optional["MemoryManager"] = None
+    _lock_class: threading.RLock = threading.RLock()
+
+    def __new__(
+        cls,
+        short_term_ttl: int = 3600,
+        short_term_max: int = 50,
+        long_term_persist_dir: Optional[str] = None
+    ) -> "MemoryManager":
+        if cls._instance is None:
+            with cls._lock_class:
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
+                    cls._instance._init(short_term_ttl, short_term_max, long_term_persist_dir)
+        return cls._instance
+
+    def _init(
         self,
         short_term_ttl: int = 3600,
         short_term_max: int = 50,
-        long_term_persist_dir: str = "data/agent/memory"
+        long_term_persist_dir: Optional[str] = None
     ) -> None:
+        if long_term_persist_dir is None:
+            if "PYTEST_CURRENT_TEST" in os.environ:
+                long_term_persist_dir = tempfile.mkdtemp(prefix="agent_memory_")
+            else:
+                long_term_persist_dir = "data/agent/memory"
         self.short_term: ShortTermMemory = ShortTermMemory(
             max_entries=short_term_max,
             ttl_seconds=short_term_ttl
         )
         self.long_term: LongTermMemory = LongTermMemory(persist_dir=long_term_persist_dir)
         self._manager_lock: threading.RLock = threading.RLock()
+
+    @classmethod
+    def reset_instance(cls) -> None:
+        with cls._lock_class:
+            cls._instance = None
 
     def add_user_message(self, content: str, metadata: Dict[str, Any] = None) -> str:
         with self._manager_lock:
