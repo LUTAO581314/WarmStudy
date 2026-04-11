@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+agent/.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Uploads and data (keep structure, ignore content)
+agent/uploads/*
+agent/data/*
+!agent/uploads/.gitkeep
+!agent/data/.gitkeep
