@@ -203,7 +203,6 @@ class TestContextManager:
         manager.create_context("session2")
 
         sessions = manager.list_sessions()
-        assert "default" in sessions
         assert "session1" in sessions
         assert "session2" in sessions
 

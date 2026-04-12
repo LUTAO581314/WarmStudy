@@ -275,9 +275,9 @@ class TestMemoryManager:
         history = manager.get_conversation_history()
         assert "Temporary" not in history
 
-    def test_session_summary(self) -> None:
+    def test_session_summary(self, temp_dir: "Path") -> None:
         """Test getting session summary."""
-        manager = MemoryManager()
+        manager = MemoryManager(long_term_persist_dir=str(temp_dir / "summary"))
         manager.add_user_message("Message 1")
         manager.add_user_message("Message 2")
 

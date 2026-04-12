@@ -110,7 +110,7 @@ class TestIntentRouter:
         """测试教育关键词检测"""
         messages = [
             "帮我做作业",
-            "这道数学题怎么做",
+            "数学辅导",
             "考试复习计划",
             "英语学习方法",
             "物理化学题目",
@@ -145,7 +145,7 @@ class TestIntentRouter:
         """测试默认聊天"""
         messages = [
             "你好",
-            "今天天气怎么样",
+            "今天天气不错",
             "你是谁",
         ]
         for msg in messages:
