@@ -1,33 +1,26 @@
-# Agent Backend Service
+# 暖学帮 Agent
 
-暖学帮智能体后端服务 (WarmStudy Agent Backend)
+青少年心理关怀AI智能体后端服务
 
-## Overview
-
-This is the AI agent backend for the WarmStudy (暖学帮) application, providing intelligent tutoring and study assistance features.
-
-## Features
-
-- RAG-based question answering
-- Document loading and embedding
-- Vector store integration
-- OCR support
-- Redis-based caching
-
-## Installation
+## 安装
 
 ```bash
 pip install -e .
 ```
 
-## Development
+## 测试
 
 ```bash
-pip install -e ".[dev]"
+pytest tests/ -v
 ```
 
-## Testing
+## 开发
 
 ```bash
-pytest tests/ -v --cov=agent
+# 安装依赖
+pip install poetry
+poetry install
+
+# 运行测试
+poetry run pytest tests/ -v --cov=agent
 ```
