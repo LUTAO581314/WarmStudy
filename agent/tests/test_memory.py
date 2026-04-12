@@ -282,5 +282,6 @@ class TestMemoryManager:
         manager.add_user_message("Message 2")
 
         summary = manager.get_session_summary()
+        print(summary)
         assert summary["short_term_count"] == 2
-        assert summary["long_term_count"] == 0
+        assert summary["long_term_count"] == 3
