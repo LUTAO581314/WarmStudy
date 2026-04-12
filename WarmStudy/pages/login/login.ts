@@ -1,5 +1,3 @@
-const { loginByPhone, loginByWechat } = require('../../utils/api.js');
-
 Page({
   data: {
     selectedRole: '' as 'student' | 'parent' | '',
@@ -77,37 +75,11 @@ Page({
 
     // 开发阶段：直接模拟登录成功
     this.mockLogin(selectedRole);
-    return;
-
-    wx.login({
-      success: (res) => {
-        if (res.code) {
-          // 调用后端登录接口
-          loginByWechat(res.code, selectedRole)
-            .then((result: any) => {
-              if (result.success) {
-                this.handleLoginSuccess(result, selectedRole);
-              } else {
-                wx.showToast({ title: result.message || '登录失败', icon: 'none' });
-              }
-            })
-            .catch((err) => {
-              // 模拟登录成功（开发阶段）
-              this.mockLogin(selectedRole);
-            });
-        }
-      },
-      fail: () => {
-        wx.showToast({ title: '微信登录失败', icon: 'none' });
-      }
-    });
   },
 
   // 手机号登录
   onPhoneLogin() {
     const { phone, code, selectedRole, agreed } = this.data;
-
-    console.log('onPhoneLogin called', { phone, code, selectedRole, agreed });
 
     if (!agreed) {
       wx.showToast({ title: '请先同意用户协议', icon: 'none' });
@@ -124,24 +96,8 @@ Page({
       return;
     }
 
-    console.log('开始模拟登录', selectedRole);
     // 开发阶段：直接模拟登录成功
     this.mockLogin(selectedRole);
-    return;
-
-    // 调用后端登录接口
-    loginByPhone(phone, code, selectedRole)
-      .then((result: any) => {
-        if (result.success) {
-          this.handleLoginSuccess(result, selectedRole);
-        } else {
-          wx.showToast({ title: result.message || '登录失败', icon: 'none' });
-        }
-      })
-      .catch((err) => {
-        // 模拟登录成功（开发阶段）
-        this.mockLogin(selectedRole);
-      });
   },
 
   // 处理登录成功
@@ -162,22 +118,18 @@ Page({
 
   // 模拟登录（开发阶段使用）
   mockLogin(role: string) {
-    console.log('mockLogin called', role);
     const mockUserId = role === 'student' ? 'student_001' : 'parent_001';
     const mockName = role === 'student' ? '学生用户' : '家长用户';
-    
+
     wx.setStorageSync('user_id', mockUserId);
     wx.setStorageSync('user_role', role);
     wx.setStorageSync('user_name', mockName);
     wx.setStorageSync('user_phone', this.data.phone || '13800138000');
-    
-    console.log('登录信息已保存', { mockUserId, role, mockName });
-    
-    wx.showToast({ 
-      title: '登录成功', 
+
+    wx.showToast({
+      title: '登录成功',
       icon: 'success',
       success: () => {
-        console.log('Toast显示成功，准备跳转');
         setTimeout(() => {
           this.navigateToHome(role);
         }, 1000);
@@ -187,30 +139,17 @@ Page({
 
   // 跳转到首页
   navigateToHome(role: string) {
-    console.log('navigateToHome called', role);
-    
-    // 学生端使用 switchTab 跳转到 tabBar 页面
     if (role === 'student') {
-      wx.switchTab({ 
+      wx.switchTab({
         url: '/pages/student/assessment/assessment',
-        success: () => {
-          console.log('学生端跳转成功');
-        },
-        fail: (err) => {
-          console.error('学生端跳转失败', err);
-          // 如果 switchTab 失败，尝试 redirectTo
+        fail: () => {
           wx.redirectTo({ url: '/pages/student/assessment/assessment' });
         }
       });
     } else {
-      // 家长端使用 navigateTo
-      wx.navigateTo({ 
+      wx.navigateTo({
         url: '/pages/parent/home/home',
-        success: () => {
-          console.log('家长端跳转成功');
-        },
-        fail: (err) => {
-          console.error('家长端跳转失败', err);
+        fail: () => {
           wx.showToast({ title: '跳转失败', icon: 'none' });
         }
       });

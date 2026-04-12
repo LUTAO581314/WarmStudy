@@ -1,29 +1,9 @@
 import { studentChat, getCurrentTime, getUserId } from '../../../utils/api';
-
-interface Message {
-  id: number;
-  role: 'ai' | 'user';
-  content: string;
-  time: string;
-  showTime?: boolean;
-  emotion?: number;
-  canWithdraw?: boolean;
-}
-
-interface Session {
-  id: string;
-  title: string;
-  lastMessage: string;
-  time: string;
-  messages: Message[];
-}
-
-interface AgentConfig {
-  name: string;
-  avatar: string;
-  personality: string;
-  emotionLevel: number;
-}
+import {
+  Message, Session, AgentConfig, EmotionConfig, AgentAvatar,
+  AGENT_AVATARS, EMOTION_CONFIGS,
+  shouldShowTime, detectEmotion, getEmotionConfig, getStorageKeys,
+} from '../../../utils/types/chat';
 
 interface ChildInfo {
   name: string;
@@ -32,39 +12,7 @@ interface ChildInfo {
   grade: string;
 }
 
-interface EmotionConfig {
-  level: number;
-  label: string;
-  color: string;
-  icon: string;
-}
-
-interface AgentAvatar {
-  id: string;
-  name: string;
-  avatar: string;
-  desc: string;
-}
-
-const AGENT_AVATARS: AgentAvatar[] = [
-  { id: 'default', name: '暖暖', avatar: '/images/ai-avatar.png', desc: '温暖贴心' },
-  { id: 'wise', name: '智慧导师', avatar: '/images/ai-avatar.png', desc: '睿智沉稳' },
-  { id: 'friendly', name: '知心姐姐', avatar: '/images/ai-avatar.png', desc: '亲切友善' },
-];
-
-const EMOTION_CONFIGS: EmotionConfig[] = [
-  { level: 1, label: '平静', color: '#95de64', icon: '😌' },
-  { level: 2, label: '温暖', color: '#ffc53d', icon: '😊' },
-  { level: 3, label: '关切', color: '#ff7a45', icon: '🤗' },
-  { level: 4, label: '专注', color: '#69c0ff', icon: '🧐' },
-  { level: 5, label: '热情', color: '#ff85c0', icon: '💖' },
-];
-
-const STORAGE_KEYS = {
-  sessions: 'student_sessions',
-  agentConfig: 'student_agent_config',
-  childInfo: 'child_info',
-} as const;
+const STORAGE_KEYS = getStorageKeys('student');
 
 interface ChatPageData {
   inputText: string;
@@ -181,8 +129,7 @@ Page({
   loadAgentConfig() {
     const agent = wx.getStorageSync(STORAGE_KEYS.agentConfig) as AgentConfig | undefined;
     if (agent) {
-      const emotionDisplay = EMOTION_CONFIGS.find(e => e.level === agent.emotionLevel) || EMOTION_CONFIGS[1];
-      this.setData({ agent, emotionDisplay });
+      this.setData({ agent, emotionDisplay: getEmotionConfig(agent.emotionLevel) });
     }
   },
 
@@ -342,7 +289,7 @@ Page({
     const now = Date.now();
     const messages = [...data.messages];
     const lastMsg = messages[messages.length - 1];
-    const showTime = !lastMsg || this.shouldShowTime(lastMsg.time, getCurrentTime());
+    const showTime = !lastMsg || shouldShowTime(lastMsg.time, getCurrentTime());
 
     const msg: Message = {
       id: now,
@@ -362,7 +309,7 @@ Page({
   addAIMessage(content: string, emotion: number = 2) {
     const messages = [...data.messages];
     const lastMsg = messages[messages.length - 1];
-    const showTime = !lastMsg || this.shouldShowTime(lastMsg.time, getCurrentTime());
+    const showTime = !lastMsg || shouldShowTime(lastMsg.time, getCurrentTime());
 
     const msg: Message = {
       id: Date.now(),
@@ -374,27 +321,15 @@ Page({
     };
 
     messages.push(msg);
-    const emotionDisplay = EMOTION_CONFIGS.find(e => e.level === emotion) || EMOTION_CONFIGS[1];
 
     this.setData({
       messages,
       loading: false,
       streamingContent: '',
-      emotionDisplay,
+      emotionDisplay: getEmotionConfig(emotion),
     });
     this.saveSessions();
     this.scrollToBottom();
-  },
-
-  shouldShowTime(lastTime: string, currentTime: string): boolean {
-    const lastParts = lastTime.split(':');
-    const currentParts = currentTime.split(':');
-    if (lastParts.length !== 2 || currentParts.length !== 2) return false;
-
-    const lastMinutes = parseInt(lastParts[0]) * 60 + parseInt(lastParts[1]);
-    const currentMinutes = parseInt(currentParts[0]) * 60 + parseInt(currentParts[1]);
-
-    return currentMinutes - lastMinutes >= 5;
   },
 
   callAI(text: string) {
@@ -405,7 +340,7 @@ Page({
     studentChat(userId, text)
       .then((res: { success: boolean; response: string }) => {
         if (res.success) {
-          const emotion = this.detectEmotion(res.response || '');
+          const emotion = detectEmotion(res.response || '');
           this.addAIMessage(res.response, emotion);
         } else {
           throw new Error('AI回复失败');
@@ -415,14 +350,6 @@ Page({
         console.error('发送消息失败:', _err);
         this.addAIMessage(this.fallbackResponse(text), 2);
       });
-  },
-
-  detectEmotion(text: string): number {
-    if (text.includes('😊') || text.includes('很高兴') || text.includes('太棒了')) return 5;
-    if (text.includes('🤗') || text.includes('理解') || text.includes('支持')) return 3;
-    if (text.includes('🧐') || text.includes('建议') || text.includes('可以尝试')) return 4;
-    if (text.includes('😌') || text.includes('放心') || text.includes('正常')) return 1;
-    return 2;
   },
 
   fallbackResponse(text: string): string {
@@ -660,9 +587,8 @@ Page({
 
   onEmotionChange(e: { detail: { value: string } }) {
     const level = parseInt(e.detail.value) + 1;
-    const emotionDisplay = EMOTION_CONFIGS.find((em) => em.level === level) || EMOTION_CONFIGS[1];
     const agent: AgentConfig = { ...data.agent, emotionLevel: level };
-    this.setData({ agent, emotionDisplay });
+    this.setData({ agent, emotionDisplay: getEmotionConfig(level) });
     wx.setStorageSync(STORAGE_KEYS.agentConfig, agent);
   },
 

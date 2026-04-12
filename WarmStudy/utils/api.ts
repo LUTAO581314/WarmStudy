@@ -358,3 +358,26 @@ export function getChildPsychReportDetail(reportId: string): Promise<{
 }> {
   return request(`/api/parent/report/${reportId}`);
 }
+
+// ===== 雷达图工具 =====
+
+const RADAR_SIZE = 220;
+const RADAR_CENTER = RADAR_SIZE / 2;
+const RADAR_MAX_RADIUS = RADAR_SIZE / 2 - 20;
+const RADAR_MAX_SCORE = 5;
+
+/** 计算雷达图6个顶点的样式字符串数组（rpx单位） */
+export function calcRadarDots(scores: number[]): string[] {
+  const dots: string[] = [];
+  for (let i = 0; i < 6; i++) {
+    const score = Math.min(scores[i] || 0, RADAR_MAX_SCORE);
+    const ratio = score / RADAR_MAX_SCORE;
+    const angleDeg = -90 + i * 60;
+    const angleRad = angleDeg * Math.PI / 180;
+    const r = RADAR_MAX_RADIUS * ratio;
+    const x = RADAR_CENTER + r * Math.cos(angleRad);
+    const y = RADAR_CENTER + r * Math.sin(angleRad);
+    dots.push(`left:${x}rpx;top:${y}rpx;`);
+  }
+  return dots;
+}

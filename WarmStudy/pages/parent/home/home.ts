@@ -1,37 +1,9 @@
-const api = require('../../utils/api.js');
-const { parentLogin, getParentQRToken, bindChild, getChildrenProfiles, getChildPsychReports, getChildPsychStatus, getChildStatus, getChildCheckins, getDailyAdvice, getChildId, getParentAlerts } = api;
-
-// 定义 ParentAlert 类型
-interface ParentAlert {
-  id: number;
-  child_id: string;
-  child_name: string;
-  alert_type: string;
-  title: string;
-  content: string;
-  is_read: boolean;
-  created_at: string;
-}
-
-const RADAR_SIZE = 220;
-const RADAR_CENTER = RADAR_SIZE / 2;
-const RADAR_MAX_RADIUS = RADAR_SIZE / 2 - 20;
-const MAX_SCORE = 5;
-
-function calcRadarDots(scores: number[]) {
-  const dots: string[] = [];
-  for (let i = 0; i < 6; i++) {
-    const score = Math.min(scores[i] || 0, MAX_SCORE);
-    const ratio = score / MAX_SCORE;
-    const angleDeg = -90 + i * 60;
-    const angleRad = angleDeg * Math.PI / 180;
-    const r = RADAR_MAX_RADIUS * ratio;
-    const x = RADAR_CENTER + r * Math.cos(angleRad);
-    const y = RADAR_CENTER + r * Math.sin(angleRad);
-    dots.push(`left:${x}rpx;top:${y}rpx;`);
-  }
-  return dots;
-}
+import {
+  parentLogin, getParentQRToken, bindChild, getChildrenProfiles,
+  getChildPsychReports, getChildPsychStatus, getChildStatus,
+  getChildCheckins, getDailyAdvice, getChildId, getParentAlerts,
+  ParentAlert, calcRadarDots,
+} from '../../../utils/api';
 
 Page({
   data: {
@@ -154,60 +126,41 @@ Page({
     }
   },
 
-  onRefreshChildren() {
+  async refreshChildren() {
     const phone = this.data.parentPhone;
     if (!phone) return;
-    parentLogin(phone)
-      .then((res: any) => {
-        if (res.success) {
-          const account = res.account;
-          const data = {
-            id: account.id, phone: account.phone,
-            name: account.name || '', children: res.bound_children || [],
-          };
-          wx.setStorageSync('parent_account', data);
-          // 查孩子档案获取姓名
-          const childIds = res.bound_children || [];
-          if (childIds.length > 0) {
-            getChildrenProfiles(childIds)
-              .then((profRes: any) => {
-                if (profRes.success) {
-                  const profiles = profRes.profiles || [];
-                  const childrenWithInfo = childIds.map((id: string) => {
-                    const p = profiles.find((x: any) => x.user_id === id) || {};
-                    return { id, name: p.name || '孩子', grade: p.grade || '' };
-                  });
-                  this.setData({ boundChildren: childrenWithInfo });
-                  // 自动选中第一个孩子
-                  const first = childrenWithInfo[0];
-                  if (first) {
-                    wx.setStorageSync('bound_child_id', first.id);
-                    this.loadAllData();
-                  }
-                } else {
-                  const childrenWithInfo = childIds.map((id: string) => ({ id, name: '孩子', grade: '' }));
-                  this.setData({ boundChildren: childrenWithInfo });
-                  if (childrenWithInfo[0]) {
-                    wx.setStorageSync('bound_child_id', childrenWithInfo[0].id);
-                    this.loadAllData();
-                  }
-                }
-              })
-              .catch(() => {
-                const childrenWithInfo = childIds.map((id: string) => ({ id, name: '孩子', grade: '' }));
-                this.setData({ boundChildren: childrenWithInfo });
-                if (childrenWithInfo[0]) {
-                  wx.setStorageSync('bound_child_id', childrenWithInfo[0].id);
-                  this.loadAllData();
-                }
-              });
-          } else {
-            this.setData({ boundChildren: [] });
-          }
-          wx.showToast({ title: '已刷新', icon: 'success' });
+    try {
+      const res: any = await parentLogin(phone);
+      if (!res.success) return;
+
+      const account = res.account;
+      const childIds: string[] = res.bound_children || [];
+      wx.setStorageSync('parent_account', {
+        id: account.id, phone: account.phone,
+        name: account.name || '', children: childIds,
+      });
+
+      let children = childIds.map((id: string) => ({ id, name: '孩子', grade: '' }));
+      try {
+        const profRes: any = await getChildrenProfiles(childIds);
+        if (profRes.success) {
+          const profiles = profRes.profiles || [];
+          children = childIds.map((id: string) => {
+            const p = profiles.find((x: any) => x.user_id === id) || {};
+            return { id, name: p.name || '孩子', grade: p.grade || '' };
+          });
         }
-      })
-      .catch(() => {});
+      } catch (_e) { /* use default names */ }
+
+      this.setData({ boundChildren: children });
+      if (children[0]) {
+        wx.setStorageSync('bound_child_id', children[0].id);
+        this.loadAllData();
+      }
+      wx.showToast({ title: '已刷新', icon: 'success' });
+    } catch (_e) {
+      wx.showToast({ title: '刷新失败，请重试', icon: 'none' });
+    }
   },
 
   onLogin() {

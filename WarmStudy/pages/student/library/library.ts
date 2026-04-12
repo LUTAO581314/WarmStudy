@@ -1,33 +1,6 @@
 /* library.ts - 随心学 */
 
-const API_BASE = 'http://localhost:8000';
-
-function request(url: string, data?: any, method: string = 'POST'): Promise<any> {
-  return new Promise((resolve, reject) => {
-    wx.request({
-      url: `${API_BASE}${url}`,
-      data,
-      method,
-      header: { 'Content-Type': 'application/json' },
-      success: (res) => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          resolve(res.data);
-        } else {
-          reject(new Error(`请求失败: ${res.statusCode}`));
-        }
-      },
-      fail: (err) => reject(err),
-    });
-  });
-}
-
-function bindParentByToken(token: string, childId: string): Promise<{ success: boolean; error?: string }> {
-  return request('/api/child/bind', { token, child_id: childId });
-}
-
-function getUserId(role: string = 'student'): string {
-  return wx.getStorageSync('user_id') || 'student_001';
-}
+import { getUserId, bindParentByToken } from '../../../utils/api';
 
 interface Todo {
   id: number; text: string; done: boolean;

@@ -1,4 +1,4 @@
-const { getChildPsychReportDetail } = require('../../utils/api.js');
+import { getChildPsychReportDetail } from '../../../utils/api';
 
 const LEVEL_LABELS: Record<string, string> = {
   normal: '正常',

@@ -5,7 +5,6 @@
 """
 import os
 import time
-import json
 import random
 from flask import Flask, request, jsonify
 from datetime import datetime, timedelta
@@ -28,9 +27,6 @@ def generate_code():
 
 def get_current_user():
     return request.headers.get("X-User-ID", "student_001")
-
-def format_response(data):
-    return {"success": True, **data}
 
 def format_error(message, code=400):
     return jsonify({"success": False, "error": message}), code

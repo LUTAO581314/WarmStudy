@@ -1,17 +1,4 @@
-const api = require('../../utils/api.js');
-const { getParentAlerts, markAlertRead, markAllAlertsRead } = api;
-
-// 定义 ParentAlert 类型
-interface ParentAlert {
-  id: number;
-  child_id: string;
-  child_name: string;
-  alert_type: string;
-  title: string;
-  content: string;
-  is_read: boolean;
-  created_at: string;
-}
+import { getParentAlerts, markAlertRead, markAllAlertsRead, ParentAlert } from '../../../utils/api';
 
 const alertTypeMap: Record<string, { icon: string; color: string; label: string; bg: string }> = {
   emotion_drop: { icon: '😊', color: '#ff9800', label: '情绪', bg: '#fff8e1' },

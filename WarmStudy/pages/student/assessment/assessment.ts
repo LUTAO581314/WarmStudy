@@ -1,48 +1,7 @@
-const API_BASE = 'http://localhost:8000';
-
-function request(url, data, method = 'POST') {
-  return new Promise((resolve, reject) => {
-    wx.request({
-      url: `${API_BASE}${url}`,
-      data,
-      method,
-      header: { 'Content-Type': 'application/json' },
-      success: (res) => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          resolve(res.data);
-        } else {
-          reject(new Error(`请求失败: ${res.statusCode}`));
-        }
-      },
-      fail: (err) => reject(err),
-    });
-  });
-}
-
-function submitCheckin(userId, data) {
-  return request('/api/student/checkin', { user_id: userId, ...data });
-}
-
-function submitPsychTest(userId, answers, testType = 'weekly') {
-  return request('/api/student/psych/test', {
-    user_id: userId,
-    answers,
-    test_type: testType,
-  });
-}
-
-function getPsychStatus(userId) {
-  return request(`/api/student/psych/status/${userId}`, undefined, 'GET');
-}
-
-function getCurrentDate() {
-  const now = new Date();
-  return `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
-}
-
-function getUserId(role = 'student') {
-  return wx.getStorageSync('user_id') || 'student_001';
-}
+import {
+  submitCheckin, submitPsychTest, getPsychStatus,
+  getCurrentDate, getUserId, calcRadarDots,
+} from '../../../utils/api';
 
 const DIMENSIONS = ['emotion', 'sleep', 'study', 'social'] as const;
 type Dimension = typeof DIMENSIONS[number];
@@ -102,31 +61,6 @@ const LABELS: Record<Dimension, string[]> = {
   study:   ['很差', '比较差', '一般', '比较好', '很好'],
   social:  ['很差', '比较差', '一般', '比较好', '很好'],
 };
-
-// 雷达图辅助计算（全部用rpx单位）
-const RADAR_SIZE = 220; // rpx，对应 wxss 中的 radar-chart
-const RADAR_CENTER = RADAR_SIZE / 2;
-const RADAR_MAX_RADIUS = RADAR_SIZE / 2 - 20; // 留出标签空间
-const MAX_SCORE = 5;
-
-function calcRadar(scores: number[]) {
-  const dots: string[] = [];
-
-  for (let i = 0; i < 6; i++) {
-    const score = Math.min(scores[i] || 0, MAX_SCORE);
-    const ratio = score / MAX_SCORE;
-    // 角度：index 0在顶部(-90°)，每60°递增，顺时针
-    const angleDeg = -90 + i * 60;
-    const angleRad = angleDeg * Math.PI / 180;
-    const r = RADAR_MAX_RADIUS * ratio;
-    const x = RADAR_CENTER + r * Math.cos(angleRad);
-    const y = RADAR_CENTER + r * Math.sin(angleRad);
-    // 用 rpx 单位，与 wxss 中雷达图尺寸单位一致
-    dots.push(`left:${x}rpx;top:${y}rpx;`);
-  }
-
-  return { dots };
-}
 
 interface CheckinData { emotion: string; sleep: string; study: string; social: string; }
 
@@ -277,7 +211,7 @@ Page({
 
   // ===== 雷达图 =====
   updateRadar(scores: number[]) {
-    const { dots } = calcRadar(scores);
+    const dots = calcRadarDots(scores);
     this.setData({
       radarScores: scores,
       dot0Style: dots[0] || '',
