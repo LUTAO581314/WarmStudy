@@ -642,7 +642,7 @@ class Agent:
                  context_results: List[Dict[str, Any]], sid: str) -> tuple:
         """反思回答质量，检查是否引用了知识库、是否解决了问题"""
         ctx_text = "\n".join([
-            f"[{i+1}] {d.get("content", "")[:300]}"
+            f'[{i+1}] {d.get("content", "")[:300]}'
             for i, d in enumerate(context_results[:3])
         ])
 
@@ -764,7 +764,7 @@ class Agent:
             parts = []
             for i, doc in enumerate(context_results[:3]):
                 score = doc.get("combined_score", doc.get("similarity", 0))
-                parts.append(f"[知识库 {i+1}] (相关度: {score:.2f})\n{doc["content"][:500]}")
+                parts.append(f'[知识库 {i+1}] (相关度: {score:.2f})\n{doc["content"][:500]}')
             ctx += "\n\n" + "\n\n".join(parts)
 
         if tool_results:
