@@ -100,7 +100,7 @@ class Executor:
         缓存 key = SHA256(prompt)，TTL = 600s
         """
         # 1. 查缓存
-        prompt_hash = hashlib.sha256(prompt.encode()).hexdigest()[:32]
+        prompt_hash = hashlib.sha256(prompt.encode()).hexdigest()
         cached = self._redis.get_llm_cache(prompt_hash)
         if cached:
             return cached.get("answer", "")
