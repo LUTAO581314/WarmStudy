@@ -369,7 +369,7 @@ class Agent:
 
         if context_results:
             ctx = "\n".join([
-                f"[{i+1}] {d.get("content", "")[:200]}"
+                f"[{i+1}] {d.get('content', '')[:200]}"
                 for i, d in enumerate(context_results[:3])
             ])
             accumulated = "\n已有知识库上下文:\n" + ctx
@@ -470,7 +470,7 @@ class Agent:
             query = str(action_input) if action_input else ""
             results = self._retrieve_context(query, sid, n_results=3, use_hybrid=True, rerank=False)
             if results:
-                return "\n".join([f"[{i+1}] {r.get("content", "")[:200]}"
+                return "\n".join([f"[{i+1}] {r.get('content', '')[:200]}"
                                    for i, r in enumerate(results)])
             return "未找到相关信息"
 
@@ -489,7 +489,7 @@ class Agent:
                  context_results: List[Dict[str, Any]], sid: str) -> tuple:
         """反思回答质量，检查是否引用了知识库、是否解决了问题"""
         ctx_text = "\n".join([
-            f"[{i+1}] {d.get("content", "")[:300]}"
+            f"[{i+1}] {d.get('content', '')[:300]}"
             for i, d in enumerate(context_results[:3])
         ])
 
@@ -614,7 +614,7 @@ class Agent:
             parts = []
             for i, doc in enumerate(context_results[:3]):
                 score = doc.get("combined_score", doc.get("similarity", 0))
-                parts.append(f"[知识库 {i+1}] (相关度: {score:.2f})\n{doc["content"][:500]}")
+                parts.append(f"[知识库 {i+1}] (相关度: {score:.2f})\n{doc['content'][:500]}")
             ctx += "\n\n" + "\n\n".join(parts)
 
         if tool_results:
@@ -640,7 +640,7 @@ class Agent:
 
         return (
             f"{system_prompt}\n\n"
-            f"Conversation History:\n{history or "No previous messages"}\n\n"
+            f"Conversation History:\n{history or 'No previous messages'}\n\n"
             + (f"Additional Context:\n{ctx}\n\n" if ctx else "\n")
             + f"User: {message}\n\nAssistant:"
         )

@@ -187,6 +187,21 @@ class PrometheusMetrics:
             return
         self.tool_calls.labels(tool_name=tool_name).inc()
 
+    def _unregister(self) -> None:
+        if not self._enabled:
+            return
+        from prometheus_client import REGISTRY
+        collectors = [
+            self.requests_total, self.request_duration, self.active_sessions,
+            self.errors_total, self.cpu_usage, self.memory_usage,
+            self.search_quality_score, self.cache_hits, self.cache_misses, self.tool_calls
+        ]
+        for collector in collectors:
+            try:
+                REGISTRY.unregister(collector)
+            except Exception:
+                pass
+
     def generate(self) -> bytes:
         if not self._enabled:
             return b""
@@ -499,6 +514,17 @@ class PerformanceMonitor:
             for sid in stale:
                 del self._sessions[sid]
 
+    def cleanup_inactive_sessions(self, max_age_seconds: float = 3600.0) -> int:
+        current_time: float = time.time()
+        with self._lock:
+            stale: List[str] = [
+                sid for sid, last_active in self._sessions.items()
+                if current_time - last_active > max_age_seconds
+            ]
+            for sid in stale:
+                del self._sessions[sid]
+            return len(stale)
+
     def record_request(
         self,
         session_id: str,
@@ -642,6 +668,8 @@ class PerformanceMonitor:
     @classmethod
     def reset_instance(cls) -> None:
         with cls._lock_class:
+            if cls._instance is not None:
+                cls._instance._prometheus._unregister()
             cls._instance = None
 
 
