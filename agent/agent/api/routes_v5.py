@@ -109,23 +109,14 @@ def chat():
                 "request_id": request_id
             }), 400
 
-        # 使用 Orchestrator 处理
+        # 使用 Orchestrator 处理（同步调用）
         orchestrator = get_orchestrator()
-
-        # 同步调用 async 方法
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            response = loop.run_until_complete(
-                orchestrator.chat(
-                    message=message,
-                    session_id=session_id,
-                    user_id=user_id,
-                    user_type=user_type,
-                )
-            )
-        finally:
-            loop.close()
+        response = orchestrator.chat(
+            message=message,
+            session_id=session_id,
+            user_id=user_id,
+            user_type=user_type,
+        )
 
         execution_time = time.time() - start_time
 
@@ -187,20 +178,13 @@ def route_intent():
         session_id = data.get("session_id", "default")
         user_type = data.get("user_type", "student")
 
-        router = get_orchestrator()
         intent_router = IntentRouter()
-
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            context = RouteContext(
-                message=message,
-                session_id=session_id,
-                user_type=user_type
-            )
-            intent = loop.run_until_complete(intent_router.route(message, context))
-        finally:
-            loop.close()
+        context = RouteContext(
+            message=message,
+            session_id=session_id,
+            user_type=user_type
+        )
+        intent = asyncio.run(intent_router.route(message, context))
 
         return jsonify({
             "status": "success",
