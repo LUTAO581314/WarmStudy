@@ -4,11 +4,15 @@ __pycache__/
 *.egg-info/
 dist/
 build/
-
+.venv/
+venv/
+ENV/
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # OS
 .DS_Store
@@ -18,3 +22,13 @@ Thumbs.db
 *.log
 logs/
 
+# Data (regeneratable)
+agent/uploads/
+agent/data/*.pdf
+agent/data/*.txt
+chroma_db/
+*.db
+
+# Environment
+.env
+.env.local
