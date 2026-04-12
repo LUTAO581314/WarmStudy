@@ -53,10 +53,10 @@ class ContextEntry:
 
 
 class Context:
-    def __init__(self, session_id: Optional[str] = None) -> None:
+    def __init__(self, session_id: Optional[str] = None, max_entries: int = 20) -> None:
         self._entries: List[ContextEntry] = []
         self._lock: threading.RLock = threading.RLock()
-        self.max_entries: int = 20
+        self.max_entries: int = max_entries
         self.session_id: str = session_id or uuid.uuid4().hex[:12]
         self.created_at: float = time.time()
         self.last_updated: float = time.time()
@@ -151,6 +151,7 @@ class ContextManager:
         self._contexts: Dict[str, Context] = {}
         self._lock: threading.RLock = threading.RLock()
         self._default_session: str = "default"
+        self._contexts[self._default_session] = Context(session_id=self._default_session)
 
     def get_context(self, session_id: Optional[str] = None) -> Context:
         sid: str = session_id or self._default_session

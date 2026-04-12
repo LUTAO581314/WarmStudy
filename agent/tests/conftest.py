@@ -62,6 +62,11 @@ def sample_context_data() -> dict:
 @pytest.fixture(autouse=True)
 def reset_singletons():
     """Reset all singleton instances before each test."""
+    # Clean up persistent data directory to ensure test isolation
+    data_path = Path(__file__).parent.parent / "data"
+    if data_path.exists():
+        shutil.rmtree(data_path)
+
     # Import only modules that exist and have reset_instance methods
     try:
         from agent.memory import MemoryManager
