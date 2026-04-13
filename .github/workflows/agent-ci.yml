@@ -9,6 +9,12 @@ on:
     branches: [ main, develop, wcy ]
     paths:
       - 'agent/**'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run tests on'
+        required: false
+        default: 'wcy'
 
 defaults:
   run:
@@ -32,9 +38,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('agent/requirements*.txt') }}
+          key: \$\{\{ runner.os \}\}-pip-\$\{\{ hashFiles('agent/requirements*.txt') \}\}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            \$\{\{ runner.os \}\}-pip-
 
       - name: Install linting tools
         run: |
@@ -74,9 +80,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('agent/requirements*.txt') }}
+          key: \$\{\{ runner.os \}\}-pip-\$\{\{ hashFiles('agent/requirements*.txt') \}\}
           restore-keys: |
-            ${{ runner.os }}-pip-
+            \$\{\{ runner.os \}\}-pip-
 
       - name: Install dependencies
         run: |
@@ -170,6 +176,6 @@ jobs:
     steps:
       - name: Verify merge eligibility
         run: |
-          echo "PR Title: ${{ github.event.pull_request.title }}"
-          echo "PR Author: ${{ github.event.pull_request.user.login }}"
+          echo "PR Title: \$\{\{ github.event.pull_request.title \}\}"
+          echo "PR Author: \$\{\{ github.event.pull_request.user.login \}\}"
           echo "All checks passed - ready to merge!"
