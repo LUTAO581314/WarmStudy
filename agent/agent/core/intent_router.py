@@ -87,7 +87,13 @@ class IntentRouter:
     ]
 
     # 否定词列表（用于危机检测的否定判断）
-    CRISIS_NEGATIONS = ["不想", "不会", "没有想", "不是想", "开个玩笑", "说着玩", "别", "别想", "别以为"]
+    CRISIS_NEGATIONS = ["不想", "不会", "没有想", "不是想", "开个玩笑", "说着玩", "别", "别想", "别以为", "我没", "我不是"]
+
+    # 通用聊天模式（不应被识别为知识查询）
+    GENERAL_CHAT_PATTERNS = [
+        "怎么样", "怎么了", "好不好", "行不行", "能不能",
+        "天气怎么样", "今天怎么样", "你好吗", "怎么样啊",
+    ]
 
     def __init__(self, llm_provider=None):
         self.llm = llm_provider
@@ -124,13 +130,13 @@ class IntentRouter:
 
         # 3. 心理学检测
         psych_intent = self._check_psychology(message, context)
-        if psych_intent.confidence > 0.5:
+        if psych_intent.confidence > 0.35:
             self._cache[cache_key] = psych_intent
             return psych_intent
 
         # 4. 教育检测
         edu_intent = self._check_education(message)
-        if edu_intent.confidence > 0.5:
+        if edu_intent.confidence > 0.35:
             self._cache[cache_key] = edu_intent
             return edu_intent
 
@@ -156,10 +162,10 @@ class IntentRouter:
 
         for kw in self.CRISIS_KEYWORDS:
             if kw in msg_lower:
-                # 检查是否有否定词在关键词前面
+                # 检查是否有否定词在关键词前面（只看关键词之前的内容，不包含关键词本身）
                 idx = msg_lower.find(kw)
-                prefix = msg_lower[max(0, idx - 10):idx + len(kw)]
-                # 如果否定词紧邻关键词，则不视为危机
+                # 只取关键词之前的部分进行检查
+                prefix = msg_lower[max(0, idx - 10):idx]
                 if any(neg in prefix for neg in self.CRISIS_NEGATIONS):
                     continue
                 return Intent(
@@ -193,7 +199,7 @@ class IntentRouter:
 
         confidence = min(keyword_confidence + emotion_boost, 1.0)
 
-        if confidence > 0.4:
+        if confidence > 0.3:
             return Intent(
                 primary=IntentType.PSYCHOLOGY_SUPPORT,
                 confidence=confidence,
@@ -241,12 +247,23 @@ class IntentRouter:
         """知识查询检测"""
         msg_lower = message.lower()
 
+        # 先检查是否匹配通用聊天模式，如果是则不视为知识查询
+        for pattern in self.GENERAL_CHAT_PATTERNS:
+            if pattern in msg_lower:
+                return Intent(
+                    primary=IntentType.KNOWLEDGE_QUERY,
+                    confidence=0.2,
+                    reasoning="通用聊天模式"
+                )
+
         # 检查知识查询模式
         knowledge_patterns = [
             ("什么是", 0.8),
             ("为什么", 0.7),
             ("如何", 0.7),
-            ("怎么", 0.6),
+            ("怎样", 0.6),
+            ("怎么办", 0.6),
+            ("怎么", 0.5),  # 降低 "怎么" 的优先级，避免误匹配
             ("解释", 0.6),
             ("原理", 0.6),
         ]
