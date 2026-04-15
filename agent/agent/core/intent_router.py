@@ -66,7 +66,7 @@ class IntentRouter:
 
     # 心理学关键词
     PSYCHOLOGY_KEYWORDS = [
-        "情绪", "心情", "难过", "开心", "生气", "害怕", "焦虑",
+        "情绪", "心情", "难过", "难受", "开心", "生气", "害怕", "焦虑",
         "压力", "紧张", "压抑", "沮喪", "失落", "失眠",
         "心理", "心事", "内心", "人际关系", "亲子关系",
         "考试压力", "学习压力", "被孤立", "被欺负",
@@ -128,25 +128,34 @@ class IntentRouter:
         if crisis_intent:
             return crisis_intent
 
-        # 3. 心理学检测
+        # 3. 强知识模式优先（"为什么"、"什么是"、"如何"、"怎么提高"等）优先于心理学和教育
+        msg_lower = message.lower()
+        strong_knowledge_patterns = ["为什么", "什么是", "如何", "怎样", "怎么提高", "怎么办"]
+        if any(p in msg_lower for p in strong_knowledge_patterns):
+            knowledge_intent = self._check_knowledge(message)
+            if knowledge_intent.confidence >= 0.5:
+                self._cache[cache_key] = knowledge_intent
+                return knowledge_intent
+
+        # 4. 心理学检测
         psych_intent = self._check_psychology(message, context)
         if psych_intent.confidence > 0.35:
             self._cache[cache_key] = psych_intent
             return psych_intent
 
-        # 4. 教育检测
+        # 5. 教育检测
         edu_intent = self._check_education(message)
-        if edu_intent.confidence > 0.35:
+        if edu_intent.confidence >= 0.5:
             self._cache[cache_key] = edu_intent
             return edu_intent
 
-        # 5. 知识查询检测
+        # 6. 弱知识查询模式（如"怎么"）在教育之后
         knowledge_intent = self._check_knowledge(message)
-        if knowledge_intent.confidence > 0.5:
+        if knowledge_intent.confidence >= 0.5:
             self._cache[cache_key] = knowledge_intent
             return knowledge_intent
 
-        # 6. 默认普通聊天
+        # 7. 默认普通聊天
         default_intent = Intent(
             primary=IntentType.GENERAL_CHAT,
             confidence=0.5,
@@ -162,11 +171,22 @@ class IntentRouter:
 
         for kw in self.CRISIS_KEYWORDS:
             if kw in msg_lower:
-                # 检查是否有否定词在关键词前面（看关键词前面的全部内容）
+                # 检查是否有否定词在关键词之前（或与关键词第一个字重叠）
+                # 例如 "我不想死" 中 "不想" 结束于 "想死" 的起始位置
                 idx = msg_lower.find(kw)
-                prefix = msg_lower[:idx]  # 关键词之前的全部内容
-                if any(neg in prefix for neg in self.CRISIS_NEGATIONS):
-                    continue
+                neg_found = False
+                for neg in self.CRISIS_NEGATIONS:
+                    # 检查 prefix + 关键词第一个字 的区域
+                    check_start = max(0, idx - len(neg))
+                    check_end = idx + 1  # 包含关键词的第一个字
+                    check_region = msg_lower[check_start:check_end]
+                    if neg in check_region:
+                        neg_found = True
+                        break
+                
+                if neg_found:
+                    continue  # 跳过这个关键词，检查下一个
+                    
                 return Intent(
                     primary=IntentType.CRISIS_INTERVENTION,
                     confidence=1.0,
