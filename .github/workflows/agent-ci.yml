@@ -2,17 +2,21 @@ name: Agent CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, wcy ]
     paths:
       - 'agent/**'
+      - '.github/workflows/**'
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, wcy ]
     paths:
       - 'agent/**'
-
-defaults:
-  run:
-    working-directory: agent
+      - '.github/workflows/**'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run tests on'
+        required: false
+        default: 'wcy'
 
 jobs:
   lint:
@@ -82,11 +86,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pytest pytest-cov pytest-asyncio
-          pip install -e .
+          pip install -e ./agent
 
       - name: Run tests with coverage
         run: |
-          pytest tests/ -v --cov=agent --cov-report=xml --cov-report=html --cov-report=term
+          pytest agent/tests/ -v --cov=agent --cov-report=xml --cov-report=html --cov-report=term
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -139,10 +143,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install build
-          python -m build
+          cd agent && python -m build
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: agent/dist/

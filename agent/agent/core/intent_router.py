@@ -48,7 +48,7 @@ class RouteContext:
 class IntentRouter:
     """
     意图路由器
-    
+
     判断逻辑：
     1. 危机关键词检测 → 最高优先级 → CRISIS
     2. 心理学关键词 + 情绪检测 → PSYCHOLOGY
@@ -66,7 +66,7 @@ class IntentRouter:
 
     # 心理学关键词
     PSYCHOLOGY_KEYWORDS = [
-        "情绪", "心情", "难过", "开心", "生气", "害怕", "焦虑",
+        "情绪", "心情", "难过", "难受", "开心", "生气", "害怕", "焦虑",
         "压力", "紧张", "压抑", "沮喪", "失落", "失眠",
         "心理", "心事", "内心", "人际关系", "亲子关系",
         "考试压力", "学习压力", "被孤立", "被欺负",
@@ -86,6 +86,15 @@ class IntentRouter:
         "为什么", "原因", "如何", "怎样", "怎么办",
     ]
 
+    # 否定词列表（用于危机检测的否定判断）
+    CRISIS_NEGATIONS = ["不想", "不会", "没有想", "不是想", "开个玩笑", "说着玩", "我没", "我不是"]
+
+    # 通用聊天模式（不应被识别为知识查询）
+    GENERAL_CHAT_PATTERNS = [
+        "怎么样", "怎么了", "好不好", "行不行", "能不能",
+        "天气怎么样", "今天怎么样", "你好吗", "怎么样啊",
+    ]
+
     def __init__(self, llm_provider=None):
         self.llm = llm_provider
         self._cache: Dict[str, Intent] = {}
@@ -98,11 +107,11 @@ class IntentRouter:
     ) -> Intent:
         """
         智能路由判断
-        
+
         Args:
             message: 用户消息
             context: 路由上下文（可选）
-            
+
         Returns:
             Intent: 意图识别结果
         """
@@ -119,25 +128,34 @@ class IntentRouter:
         if crisis_intent:
             return crisis_intent
 
-        # 3. 心理学检测
+        # 3. 强知识模式优先（"为什么"、"什么是"、"如何"、"怎么提高"等）优先于心理学和教育
+        msg_lower = message.lower()
+        strong_knowledge_patterns = ["为什么", "什么是", "如何", "怎样", "怎么提高", "怎么办"]
+        if any(p in msg_lower for p in strong_knowledge_patterns):
+            knowledge_intent = self._check_knowledge(message)
+            if knowledge_intent.confidence >= 0.5:
+                self._cache[cache_key] = knowledge_intent
+                return knowledge_intent
+
+        # 4. 心理学检测
         psych_intent = self._check_psychology(message, context)
-        if psych_intent.confidence > 0.6:
+        if psych_intent.confidence > 0.35:
             self._cache[cache_key] = psych_intent
             return psych_intent
 
-        # 4. 教育检测
+        # 5. 教育检测
         edu_intent = self._check_education(message)
-        if edu_intent.confidence > 0.5:
+        if edu_intent.confidence >= 0.5:
             self._cache[cache_key] = edu_intent
             return edu_intent
 
-        # 5. 知识查询检测
+        # 6. 弱知识查询模式（如"怎么"）在教育之后
         knowledge_intent = self._check_knowledge(message)
-        if knowledge_intent.confidence > 0.5:
+        if knowledge_intent.confidence >= 0.5:
             self._cache[cache_key] = knowledge_intent
             return knowledge_intent
 
-        # 6. 默认普通聊天
+        # 7. 默认普通聊天
         default_intent = Intent(
             primary=IntentType.GENERAL_CHAT,
             confidence=0.5,
@@ -151,16 +169,24 @@ class IntentRouter:
         """危机检测"""
         msg_lower = message.lower()
 
-        # 否定词
-        negations = ["不想", "不会", "没有想", "不是想", "开个玩笑", "说着玩"]
-
         for kw in self.CRISIS_KEYWORDS:
             if kw in msg_lower:
-                # 检查是否有否定词
+                # 检查是否有否定词在关键词之前（或与关键词第一个字重叠）
+                # 例如 "我不想死" 中 "不想" 结束于 "想死" 的起始位置
                 idx = msg_lower.find(kw)
-                prefix = msg_lower[max(0, idx - 20):idx]
-                if any(neg in prefix for neg in negations):
-                    continue
+                neg_found = False
+                for neg in self.CRISIS_NEGATIONS:
+                    # 检查 prefix + 关键词第一个字 的区域
+                    check_start = max(0, idx - len(neg))
+                    check_end = idx + 1  # 包含关键词的第一个字
+                    check_region = msg_lower[check_start:check_end]
+                    if neg in check_region:
+                        neg_found = True
+                        break
+                
+                if neg_found:
+                    continue  # 跳过这个关键词，检查下一个
+                    
                 return Intent(
                     primary=IntentType.CRISIS_INTERVENTION,
                     confidence=1.0,
@@ -181,7 +207,7 @@ class IntentRouter:
         # 关键词匹配
         keyword_matches = [kw for kw in self.PSYCHOLOGY_KEYWORDS if kw in msg_lower]
         keyword_count = len(keyword_matches)
-        keyword_confidence = min(keyword_count / 2, 0.9)
+        keyword_confidence = min(keyword_count / 1.5, 0.9)
 
         # 情绪强度检测（如果有context）
         emotion_boost = 0.0
@@ -192,7 +218,7 @@ class IntentRouter:
 
         confidence = min(keyword_confidence + emotion_boost, 1.0)
 
-        if confidence > 0.4:
+        if confidence > 0.3:
             return Intent(
                 primary=IntentType.PSYCHOLOGY_SUPPORT,
                 confidence=confidence,
@@ -218,8 +244,8 @@ class IntentRouter:
         keyword_matches = [kw for kw in self.EDUCATION_KEYWORDS if kw in msg_lower]
         keyword_count = len(keyword_matches)
 
-        if keyword_count >= 2:
-            confidence = min(keyword_count / 3, 0.9)
+        if keyword_count >= 1:
+            confidence = min(keyword_count / 2, 0.9)
             return Intent(
                 primary=IntentType.EDUCATION,
                 confidence=confidence,
@@ -240,12 +266,23 @@ class IntentRouter:
         """知识查询检测"""
         msg_lower = message.lower()
 
+        # 先检查是否匹配通用聊天模式，如果是则不视为知识查询
+        for pattern in self.GENERAL_CHAT_PATTERNS:
+            if pattern in msg_lower:
+                return Intent(
+                    primary=IntentType.KNOWLEDGE_QUERY,
+                    confidence=0.2,
+                    reasoning="通用聊天模式"
+                )
+
         # 检查知识查询模式
         knowledge_patterns = [
             ("什么是", 0.8),
             ("为什么", 0.7),
             ("如何", 0.7),
-            ("怎么", 0.6),
+            ("怎样", 0.6),
+            ("怎么办", 0.6),
+            ("怎么", 0.5),
             ("解释", 0.6),
             ("原理", 0.6),
         ]
