@@ -20,7 +20,7 @@
   <!-- 预警列表 -->
   <view class="alert-list" wx:else>
     <view
-      class="alert-item {{alert.is_read ? 'read' : 'unread'}}"
+      class="alert-item {{item.is_read ? 'read' : 'unread'}}"
       wx:for="{{alerts}}"
       wx:key="id"
       bindtap="onTapAlert"

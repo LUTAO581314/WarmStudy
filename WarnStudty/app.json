@@ -19,28 +19,28 @@
   },
   "tabBar": {
     "custom": false,
-    "color": "#999999",
-    "selectedColor": "#00C853",
+    "color": "#94A3B8",
+    "selectedColor": "#10b981",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/student/assessment/assessment",
         "text": "测评",
-        "iconPath": "images/tab-check.png",
-        "selectedIconPath": "images/tab-check-active.png"
+        "iconPath": "images/tab-assess.png",
+        "selectedIconPath": "images/tab-assess-active.png"
       },
       {
         "pagePath": "pages/student/chat/chat",
-        "text": "暖暖",
-        "iconPath": "images/tab-chat.png",
-        "selectedIconPath": "images/tab-chat-active.png"
+        "text": "对话",
+        "iconPath": "images/tab-dialog.png",
+        "selectedIconPath": "images/tab-dialog-active.png"
       },
       {
         "pagePath": "pages/student/library/library",
-        "text": "资源",
-        "iconPath": "images/tab-lib.png",
-        "selectedIconPath": "images/tab-lib-active.png"
+        "text": "中心",
+        "iconPath": "images/tab-center.png",
+        "selectedIconPath": "images/tab-center-active.png"
       }
     ]
   },

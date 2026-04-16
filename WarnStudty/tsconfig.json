@@ -9,14 +9,11 @@
     "esModuleInterop": true,
     "lib": ["ES2015", "ES2017", "ES2020", "DOM"],
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "paths": {
       "@/*": ["./*"]
     }
   },
-  "include": [
-    "**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
 }

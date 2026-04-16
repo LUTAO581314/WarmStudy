@@ -7,7 +7,7 @@
 
 /* ===== 报告头部 ===== */
 .report-header {
-  background: linear-gradient(135deg, #FF9500 0%, #ffb340 100%);
+  background: linear-gradient(135deg, #ff9500 0%, #ffb340 100%);
   padding: 48rpx 32rpx 36rpx;
   color: #fff;
   border-radius: 0 0 32rpx 32rpx;
@@ -25,7 +25,7 @@
 }
 .report-date {
   font-size: 24rpx;
-  color: rgba(255,255,255,0.8);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .report-score-circle {
@@ -37,11 +37,11 @@
   width: 140rpx;
   height: 140rpx;
   border-radius: 50%;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 6rpx solid rgba(255,255,255,0.5);
+  border: 6rpx solid rgba(255, 255, 255, 0.5);
   flex-shrink: 0;
 }
 .score-inner {
@@ -56,7 +56,7 @@
 }
 .score-denom {
   font-size: 26rpx;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255, 255, 255, 0.75);
 }
 .score-label-col {
   flex: 1;
@@ -69,15 +69,15 @@
   font-size: 24rpx;
   padding: 6rpx 20rpx;
   border-radius: 20rpx;
-  background: rgba(255,255,255,0.25);
-  border: 2rpx solid rgba(255,255,255,0.5);
+  background: rgba(255, 255, 255, 0.25);
+  border: 2rpx solid rgba(255, 255, 255, 0.5);
   color: #fff;
   font-weight: 500;
   align-self: flex-start;
 }
 .level-desc {
   font-size: 24rpx;
-  color: rgba(255,255,255,0.85);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* ===== 通用区块 ===== */
@@ -94,8 +94,12 @@
   display: block;
   margin-bottom: 16rpx;
 }
-.section-label.ai-label { color: #2196f3; }
-.section-label.parent-label { color: #FF9500; }
+.section-label.ai-label {
+  color: #2196f3;
+}
+.section-label.parent-label {
+  color: #ff9500;
+}
 
 /* ===== 报告摘要 ===== */
 .report-summary {
@@ -113,7 +117,11 @@
   padding-bottom: 16rpx;
   border-bottom: 1rpx solid #f5f5f5;
 }
-.finding-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.finding-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
 .finding-num {
   width: 40rpx;
   height: 40rpx;
@@ -124,7 +132,7 @@
   justify-content: center;
   font-size: 22rpx;
   font-weight: bold;
-  color: #FF9500;
+  color: #ff9500;
   flex-shrink: 0;
 }
 .finding-text {
@@ -140,20 +148,41 @@
   padding-bottom: 24rpx;
   border-bottom: 1rpx solid #f5f5f5;
 }
-.dim-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.dim-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
 .dim-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8rpx;
 }
-.dim-name { font-size: 28rpx; color: #333; font-weight: 500; }
-.dim-score { font-size: 28rpx; font-weight: bold; }
-.dim-score.normal { color: #00C853; }
-.dim-score.mild { color: #4caf50; }
-.dim-score.moderate { color: #ff9800; }
-.dim-score.concerning { color: #f44336; }
-.dim-score.severe { color: #c62828; }
+.dim-name {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+.dim-score {
+  font-size: 28rpx;
+  font-weight: bold;
+}
+.dim-score.normal {
+  color: #338b6d;
+}
+.dim-score.mild {
+  color: #4caf50;
+}
+.dim-score.moderate {
+  color: #ff9800;
+}
+.dim-score.concerning {
+  color: #f44336;
+}
+.dim-score.severe {
+  color: #c62828;
+}
 .dim-bar-bg {
   height: 10rpx;
   background: #f0f0f0;
@@ -166,12 +195,25 @@
   border-radius: 5rpx;
   transition: width 0.4s;
 }
-.dim-bar-fill.normal { background: #00C853; }
-.dim-bar-fill.mild { background: #4caf50; }
-.dim-bar-fill.moderate { background: #ff9800; }
-.dim-bar-fill.concerning { background: #f44336; }
-.dim-bar-fill.severe { background: #c62828; }
-.dim-desc { font-size: 22rpx; color: #999; }
+.dim-bar-fill.normal {
+  background: #338b6d;
+}
+.dim-bar-fill.mild {
+  background: #4caf50;
+}
+.dim-bar-fill.moderate {
+  background: #ff9800;
+}
+.dim-bar-fill.concerning {
+  background: #f44336;
+}
+.dim-bar-fill.severe {
+  background: #c62828;
+}
+.dim-desc {
+  font-size: 22rpx;
+  color: #999;
+}
 
 /* ===== AI建议卡片 ===== */
 .advice-card {
@@ -181,7 +223,7 @@
   border-left: 4rpx solid #2196f3;
 }
 .advice-card.parent-card {
-  border-left-color: #FF9500;
+  border-left-color: #ff9500;
 }
 .advice-text {
   font-size: 28rpx;
@@ -207,11 +249,33 @@
   background: #ffebee;
   border: 1rpx solid #ffcdd2;
 }
-.risk-icon { font-size: 40rpx; flex-shrink: 0; }
-.risk-content { flex: 1; }
-.risk-title { font-size: 28rpx; font-weight: bold; display: block; margin-bottom: 6rpx; }
-.risk-card.concerning .risk-title { color: #e65100; }
-.risk-card.severe .risk-title { color: #c62828; }
-.risk-desc { font-size: 26rpx; line-height: 1.6; display: block; }
-.risk-card.concerning .risk-desc { color: #bf360c; }
-.risk-card.severe .risk-desc { color: #b71c1c; }
+.risk-icon {
+  font-size: 40rpx;
+  flex-shrink: 0;
+}
+.risk-content {
+  flex: 1;
+}
+.risk-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 6rpx;
+}
+.risk-card.concerning .risk-title {
+  color: #e65100;
+}
+.risk-card.severe .risk-title {
+  color: #c62828;
+}
+.risk-desc {
+  font-size: 26rpx;
+  line-height: 1.6;
+  display: block;
+}
+.risk-card.concerning .risk-desc {
+  color: #bf360c;
+}
+.risk-card.severe .risk-desc {
+  color: #b71c1c;
+}

@@ -25,7 +25,7 @@
     <view class="checkin-grid">
       <view class="checkin-item {{checkin.emotion ? 'done' : ''}}" bindtap="onCheckin" data-type="emotion">
         <view class="checkin-inner">
-          <text class="checkin-icon">😊</text>
+          <image class="checkin-icon" src="/images/ui-emotion.png" mode="aspectFit" />
           <text class="checkin-label">情绪</text>
           <text class="checkin-value">{{checkin.emotion || '未打卡'}}</text>
         </view>
@@ -33,7 +33,7 @@
       </view>
       <view class="checkin-item {{checkin.sleep ? 'done' : ''}}" bindtap="onCheckin" data-type="sleep">
         <view class="checkin-inner">
-          <text class="checkin-icon">😴</text>
+          <image class="checkin-icon" src="/images/ui-sleep.png" mode="aspectFit" />
           <text class="checkin-label">睡眠</text>
           <text class="checkin-value">{{checkin.sleep || '未打卡'}}</text>
         </view>
@@ -41,7 +41,7 @@
       </view>
       <view class="checkin-item {{checkin.study ? 'done' : ''}}" bindtap="onCheckin" data-type="study">
         <view class="checkin-inner">
-          <text class="checkin-icon">📚</text>
+          <image class="checkin-icon" src="/images/ui-study.png" mode="aspectFit" />
           <text class="checkin-label">学习</text>
           <text class="checkin-value">{{checkin.study || '未打卡'}}</text>
         </view>
@@ -49,7 +49,7 @@
       </view>
       <view class="checkin-item {{checkin.social ? 'done' : ''}}" bindtap="onCheckin" data-type="social">
         <view class="checkin-inner">
-          <text class="checkin-icon">👫</text>
+          <image class="checkin-icon" src="/images/ui-social.png" mode="aspectFit" />
           <text class="checkin-label">社交</text>
           <text class="checkin-value">{{checkin.social || '未打卡'}}</text>
         </view>
@@ -57,7 +57,7 @@
       </view>
     </view>
     <view class="checkin-tip" wx:if="{{checkinDone}}">
-      <text class="tip-icon">💡</text>
+      <text class="tip-icon">提</text>
       <text class="tip-text">今日打卡完成！建议去「AI心理师」查看个性化建议</text>
     </view>
   </view>
@@ -70,8 +70,8 @@
     </view>
     <view class="test-list">
       <view class="test-item" bindtap="onStartTest" data-type="weekly">
-        <view class="test-icon-wrap" style="background:#e8f5e9">
-          <text style="font-size:36rpx">📊</text>
+        <view class="test-icon-wrap">
+          <text class="test-icon-text">综</text>
         </view>
         <view class="test-info">
           <text class="test-name">心理健康综合评估</text>
@@ -83,8 +83,8 @@
         </view>
       </view>
       <view class="test-item" bindtap="onStartTest" data-type="pressure">
-        <view class="test-icon-wrap" style="background:#fff3e0">
-          <text style="font-size:36rpx">⚖️</text>
+        <view class="test-icon-wrap">
+          <text class="test-icon-text">压</text>
         </view>
         <view class="test-info">
           <text class="test-name">感知压力评估</text>
@@ -96,8 +96,8 @@
         </view>
       </view>
       <view class="test-item" bindtap="onStartTest" data-type="communication">
-        <view class="test-icon-wrap" style="background:#e3f2fd">
-          <text style="font-size:36rpx">💬</text>
+        <view class="test-icon-wrap">
+          <text class="test-icon-text">亲</text>
         </view>
         <view class="test-info">
           <text class="test-name">亲子沟通质量评估</text>
@@ -118,7 +118,7 @@
       <text class="section-more" bindtap="onViewFullReport">查看完整报告 ›</text>
     </view>
     <!-- 雷达图：左右布局 -->
-    <view class="radar-wrapper">
+    <view class="radar-wrapper" wx:if="{{!showTest}}">
       <!-- 左侧雷达图 -->
       <view class="radar-chart">
         <!-- 四层环形背景 -->
@@ -133,13 +133,19 @@
         <view class="radar-line radar-line-3"></view>
         <view class="radar-line radar-line-4"></view>
         <view class="radar-line radar-line-5"></view>
+        <canvas
+          canvas-id="radarAreaCanvas"
+          class="radar-area-canvas"
+          width="{{radarCanvasSize}}"
+          height="{{radarCanvasSize}}"
+        ></canvas>
         <!-- 数据点 -->
-        <view class="radar-dot" style="{{dot0Style}}"></view>
-        <view class="radar-dot" style="{{dot1Style}}"></view>
-        <view class="radar-dot" style="{{dot2Style}}"></view>
-        <view class="radar-dot" style="{{dot3Style}}"></view>
-        <view class="radar-dot" style="{{dot4Style}}"></view>
-        <view class="radar-dot" style="{{dot5Style}}"></view>
+        <view class="radar-dot radar-dot-0" style="{{dot0Style}}"></view>
+        <view class="radar-dot radar-dot-1" style="{{dot1Style}}"></view>
+        <view class="radar-dot radar-dot-2" style="{{dot2Style}}"></view>
+        <view class="radar-dot radar-dot-3" style="{{dot3Style}}"></view>
+        <view class="radar-dot radar-dot-4" style="{{dot4Style}}"></view>
+        <view class="radar-dot radar-dot-5" style="{{dot5Style}}"></view>
         <!-- 六个轴线标签（紧贴外环外侧） -->
         <text class="radar-lbl radar-lbl-0">学习焦虑</text>
         <text class="radar-lbl radar-lbl-1">对人焦虑</text>
@@ -151,32 +157,32 @@
       <!-- 右侧指标列表 -->
       <view class="radar-indicators">
         <view class="indicator-item">
-          <view class="indicator-dot" style="background:#f44336"></view>
+          <view class="indicator-dot" style="background:#166534"></view>
           <text class="indicator-label">学习焦虑</text>
           <text class="indicator-score">{{radarScores[0]}}</text>
         </view>
         <view class="indicator-item">
-          <view class="indicator-dot" style="background:#e91e63"></view>
+          <view class="indicator-dot" style="background:#1f7a4a"></view>
           <text class="indicator-label">对人焦虑</text>
           <text class="indicator-score">{{radarScores[1]}}</text>
         </view>
         <view class="indicator-item">
-          <view class="indicator-dot" style="background:#9c27b0"></view>
+          <view class="indicator-dot" style="background:#2a8f61"></view>
           <text class="indicator-label">孤独倾向</text>
           <text class="indicator-score">{{radarScores[2]}}</text>
         </view>
         <view class="indicator-item">
-          <view class="indicator-dot" style="background:#ff9800"></view>
+          <view class="indicator-dot" style="background:#35a478"></view>
           <text class="indicator-label">自责倾向</text>
           <text class="indicator-score">{{radarScores[3]}}</text>
         </view>
         <view class="indicator-item">
-          <view class="indicator-dot" style="background:#2196f3"></view>
+          <view class="indicator-dot" style="background:#46b690"></view>
           <text class="indicator-label">过敏倾向</text>
           <text class="indicator-score">{{radarScores[4]}}</text>
         </view>
         <view class="indicator-item">
-          <view class="indicator-dot" style="background:#00bcd4"></view>
+          <view class="indicator-dot" style="background:#5cc6a6"></view>
           <text class="indicator-label">身体症状</text>
           <text class="indicator-score">{{radarScores[5]}}</text>
         </view>
@@ -185,7 +191,7 @@
     </view>
     <!-- 风险提示 -->
     <view class="risk-alert {{riskLevel >= 3 ? 'show' : ''}}">
-      <text class="risk-icon">⚠️</text>
+      <image class="risk-icon" src="/images/ui-warning.png" mode="aspectFit" />
       <text class="risk-text">检测到 {{riskLevel}} 项偏高，建议与AI朋朋深入聊聊</text>
     </view>
   </view>

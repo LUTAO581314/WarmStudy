@@ -60,12 +60,6 @@
             </view>
           </view>
           
-          <image 
-            wx:if="{{item.role === 'user'}}" 
-            class="msg-avatar" 
-            src="/assets/avatar/user/default.png" 
-            mode="aspectFill" 
-          />
         </view>
       </view>
     </block>
@@ -80,12 +74,11 @@
         </view>
       </view>
       <view class="stop-btn" bindtap="onStopStreaming">
-        <text class="stop-icon">■</text>
-        <text class="stop-text">停止</text>
+        <view class="stop-dot"></view>
       </view>
     </view>
 
-    <view class="scroll-placeholder" style="height: {{inputAreaHeight + 40}}rpx;"></view>
+    <view class="scroll-placeholder" style="height: calc({{inputAreaHeight + 260}}rpx + {{keyboardHeight}}px);"></view>
   </scroll-view>
 
   <view class="input-area" style="bottom: {{keyboardHeight}}px;">
@@ -96,7 +89,7 @@
     
     <view class="input-row" wx:if="{{inputMode === 'text'}}">
       <view class="input-btn" bindtap="onToggleInputMode">
-        <text class="btn-icon">🎤</text>
+        <image class="voice-icon-image" src="/images/say.png" mode="aspectFit" />
       </view>
       
       <view class="input-wrapper">
@@ -127,7 +120,7 @@
 
     <view class="input-row voice-row" wx:if="{{inputMode === 'voice'}}">
       <view class="input-btn" bindtap="onToggleInputMode">
-        <text class="btn-icon">⌨️</text>
+        <text class="mode-icon">⌨</text>
       </view>
       
       <view 
@@ -151,11 +144,11 @@
         <text class="menu-icon">📋</text>
         <text class="menu-label">复制</text>
       </view>
-      <view class="menu-item" bindtap="onEditMessage" wx:if="{{messages[contextMenuFor].role === 'user'}}">
+      <view class="menu-item" bindtap="onEditMessage" wx:if="{{contextMenuRole === 'user'}}">
         <text class="menu-icon">✏️</text>
         <text class="menu-label">编辑</text>
       </view>
-      <view class="menu-item" bindtap="onWithdrawMessage" wx:if="{{messages[contextMenuFor].role === 'user'}}">
+      <view class="menu-item" bindtap="onWithdrawMessage" wx:if="{{contextMenuRole === 'user'}}">
         <text class="menu-icon">↩️</text>
         <text class="menu-label">撤回</text>
       </view>
@@ -170,7 +163,7 @@
         <text class="toolbox-close" bindtap="onCloseToolbox">×</text>
       </view>
       <view class="quick-questions">
-        <text class="quick-title">快捷问题</text>
+        <text class="quick-title">常用提问</text>
         <view class="question-list">
           <view class="question-item" bindtap="onQuickQuestion" data-question="孩子学习压力大怎么办？">
             <text>孩子学习压力大怎么办？</text>
@@ -188,26 +181,26 @@
       </view>
       <view class="toolbox-grid">
         <view class="tool-item" bindtap="onShowContext">
-          <view class="tool-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <text class="tool-emoji">📜</text>
+          <view class="tool-icon tool-icon-context">
+            <text class="tool-emoji">记</text>
           </view>
           <text class="tool-name">查看上下文</text>
         </view>
         <view class="tool-item" bindtap="onShowAgentSettings">
-          <view class="tool-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-            <text class="tool-emoji">⚙️</text>
+          <view class="tool-icon tool-icon-settings">
+            <text class="tool-emoji">设</text>
           </view>
           <text class="tool-name">智能体设置</text>
         </view>
         <view class="tool-item" bindtap="onNewSession">
-          <view class="tool-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-            <text class="tool-emoji">💬</text>
+          <view class="tool-icon tool-icon-session">
+            <text class="tool-emoji">新</text>
           </view>
           <text class="tool-name">新会话</text>
         </view>
         <view class="tool-item" bindtap="onClearHistory">
-          <view class="tool-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
-            <text class="tool-emoji">🗑️</text>
+          <view class="tool-icon tool-icon-clear">
+            <text class="tool-emoji">清</text>
           </view>
           <text class="tool-name">清空历史</text>
         </view>
@@ -262,7 +255,6 @@
       
       <view class="settings-section">
         <view class="section-title">
-          <text class="title-icon">🎭</text>
           <text class="title-text">AI形象</text>
         </view>
         <view class="avatar-picker" bindtap="onShowAvatarPicker">
@@ -277,7 +269,6 @@
       
       <view class="settings-section">
         <view class="section-title">
-          <text class="title-icon">💕</text>
           <text class="title-text">情感浓度</text>
         </view>
         <view class="emotion-slider">
@@ -297,7 +288,7 @@
           </view>
           <view class="current-emotion">
             <text class="emotion-display" style="color: {{emotionDisplay.color}}">
-              {{emotionDisplay.icon}} {{emotionDisplay.label}}
+              {{emotionDisplay.label}}
             </text>
           </view>
         </view>
@@ -305,7 +296,6 @@
       
       <view class="settings-section">
         <view class="section-title">
-          <text class="title-icon">ℹ️</text>
           <text class="title-text">关于</text>
         </view>
         <view class="about-item" bindtap="onAboutAgent">
@@ -332,13 +322,13 @@
           data-id="{{avatarId}}"
           bindtap="onSelectAvatar"
         >
-          <image class="option-avatar" src="/images/ai-avatar.png" mode="aspectFill" />
+          <image class="option-avatar" src="/images/ai.png" mode="aspectFill" />
           <view class="option-info">
             <text class="option-name">{{avatarId === 'default' ? '暖暖' : avatarId === 'wise' ? '智慧导师' : '知心姐姐'}}</text>
             <text class="option-desc">{{avatarId === 'default' ? '温暖贴心' : avatarId === 'wise' ? '睿智沉稳' : '亲切友善'}}</text>
           </view>
           <view class="option-check" wx:if="{{(avatarId === 'default' && agent.name === '暖暖') || (avatarId === 'wise' && agent.name === '智慧导师') || (avatarId === 'friendly' && agent.name === '知心姐姐')}}">
-            <text class="check-icon">✓</text>
+            <view class="check-dot"></view>
           </view>
         </view>
       </view>
@@ -366,6 +356,23 @@
           </view>
         </view>
       </scroll-view>
+    </view>
+  </view>
+
+  <view class="parent-tabbar">
+    <view class="parent-tab-item" bindtap="onParentHome">
+      <image class="parent-tab-icon" src="/images/tab-assess.png" mode="aspectFit" />
+      <text class="parent-tab-text">孩子</text>
+    </view>
+    <view class="parent-tab-item active" bindtap="onParentAI">
+      <view class="dialog-icon-circle active">
+        <image class="parent-tab-icon" src="/images/tab-dialog-active.png" mode="aspectFit" />
+      </view>
+      <text class="parent-tab-text">对话</text>
+    </view>
+    <view class="parent-tab-item" bindtap="onParentSettings">
+      <image class="parent-tab-icon" src="/images/tab-center.png" mode="aspectFit" />
+      <text class="parent-tab-text">设置</text>
     </view>
   </view>
 </view>
