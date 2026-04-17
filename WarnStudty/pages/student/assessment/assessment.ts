@@ -1,6 +1,9 @@
 export {};
 
-const API_BASE = "http://localhost:8000";
+const getApiBase = (): string => {
+  const app = getApp<IAppOption>();
+  return app?.globalData?.apiBase || "http://localhost:8000";
+};
 
 function request(
   url: string,
@@ -9,7 +12,7 @@ function request(
 ): Promise<any> {
   return new Promise((resolve, reject) => {
     wx.request({
-      url: `${API_BASE}${url}`,
+      url: `${getApiBase()}${url}`,
       data,
       method,
       header: { "Content-Type": "application/json" },

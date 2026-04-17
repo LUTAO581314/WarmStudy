@@ -63,7 +63,7 @@
           <image
             wx:if="{{item.role === 'user'}}"
             class="msg-avatar"
-            src="/assets/avatar/user/default.png"
+            src="/images/ui-social.png"
             mode="aspectFill"
           />
         </view>

@@ -9,7 +9,10 @@ interface KnowledgeItem {
   emotions: string[];
 }
 
-const API_BASE = 'http://localhost:8000';
+const getApiBase = (): string => {
+  const app = getApp<IAppOption>();
+  return app?.globalData?.apiBase || "http://localhost:8000";
+};
 
 Page({
   data: {
@@ -22,15 +25,15 @@ Page({
     loading: false,
   },
 
-  onLoad() {
+  onLoad(options?: { id?: string }) {
     this.loadCategories();
-    this.loadKnowledge();
+    this.loadKnowledge(options?.id);
   },
 
   loadCategories() {
     // 使用后端API获取分类
     wx.request({
-      url: `${API_BASE}/api/agent/psychology/categories`,
+      url: `${getApiBase()}/api/agent/psychology/categories`,
       method: 'GET',
       success: (res) => {
         if (res.data.ok) {
@@ -51,12 +54,12 @@ Page({
     });
   },
 
-  loadKnowledge() {
+  loadKnowledge(targetId?: string) {
     this.setData({ loading: true });
 
     // 调用后端API获取知识列表
     wx.request({
-      url: `${API_BASE}/api/agent/psychology/knowledge`,
+      url: `${getApiBase()}/api/agent/psychology/knowledge`,
       method: 'GET',
       data: {
         q: '心理',
@@ -65,10 +68,16 @@ Page({
       },
       success: (res) => {
         if (res.data.ok && res.data.results) {
+          const selectedItem =
+            targetId
+              ? res.data.results.find((item: KnowledgeItem) => item.id === targetId) || null
+              : null;
           this.setData({
             knowledgeList: res.data.results,
             filteredList: res.data.results,
-            loading: false
+            loading: false,
+            selectedItem,
+            showDetail: !!selectedItem
           });
         } else {
           this.setData({ loading: false });

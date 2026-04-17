@@ -1,6 +1,9 @@
 /* library.ts - 心理成长中心 */
 
-const API_BASE = "http://localhost:8000";
+const getApiBase = (): string => {
+  const app = getApp<IAppOption>();
+  return app?.globalData?.apiBase || "http://localhost:8000";
+};
 
 function request(
   url: string,
@@ -9,7 +12,7 @@ function request(
 ): Promise<any> {
   return new Promise((resolve, reject) => {
     wx.request({
-      url: `${API_BASE}${url}`,
+      url: `${getApiBase()}${url}`,
       data,
       method,
       header: { "Content-Type": "application/json" },
@@ -67,7 +70,7 @@ const PSYCH_CARDS: PsychCard[] = [
     desc: "查看情绪变化",
     icon: "/images/ui-growth-report.png",
     bgColor: "#e3f2fd",
-    path: "/pages/student/report/week",
+    path: "/pages/student/assessment/assessment",
   },
   {
     id: "knowledge",
@@ -75,7 +78,7 @@ const PSYCH_CARDS: PsychCard[] = [
     desc: "学习心理知识",
     icon: "/images/ui-growth-knowledge.png",
     bgColor: "#f3e5f5",
-    path: "/pages/student/library/knowledge",
+    path: "/pages/student/library/knowledge/knowledge",
     tag: "推荐",
   },
   {
@@ -84,7 +87,7 @@ const PSYCH_CARDS: PsychCard[] = [
     desc: "正念冥想放松",
     icon: "/images/ui-growth-relax.png",
     bgColor: "#e8f5e9",
-    path: "/pages/student/relax/home",
+    path: "/pages/student/chat/chat",
   },
   {
     id: "consult",
@@ -100,7 +103,7 @@ const PSYCH_CARDS: PsychCard[] = [
     desc: "专业量表测试",
     icon: "/images/ui-growth-test.png",
     bgColor: "#fff8e1",
-    path: "/pages/student/assessment/start",
+    path: "/pages/student/assessment/assessment",
   },
 ];
 
@@ -308,7 +311,7 @@ Page({
     wx.showToast({ title: "打卡成功 🌸", icon: "success" });
 
     // 调用后端API记录
-    request("/api/psychology/checkin", {
+    request("/api/student/checkin", {
       mood: moodValue,
       timestamp: Date.now(),
     }).catch(() => {});
@@ -323,7 +326,7 @@ Page({
   },
 
   showKnowledgeList() {
-    wx.navigateTo({ url: "/pages/student/library/knowledge" });
+    wx.navigateTo({ url: "/pages/student/library/knowledge/knowledge" });
   },
 
   onKnowledgeTap(e: any) {
@@ -339,7 +342,7 @@ Page({
     const item = this.data.selectedKnowledge;
     if (item) {
       wx.navigateTo({
-        url: `/pages/student/library/knowledge-detail?id=${item.id}`,
+        url: `/pages/student/library/knowledge/knowledge?id=${item.id}`,
       });
     }
     this.closeKnowledgeModal();

@@ -1,4 +1,8 @@
-const { loginByPhone, loginByWechat } = require("../../utils/api.js");
+const {
+  loginByPhone,
+  loginByWechat,
+  sendVerifyCode,
+} = require("../../utils/api.js");
 
 Page({
   data: {
@@ -52,32 +56,37 @@ Page({
       return;
     }
 
-    // 模拟发送验证码
-    wx.showToast({ title: "验证码已发送", icon: "success" });
+    sendVerifyCode(phone)
+      .then(() => {
+        wx.showToast({ title: "验证码已发送", icon: "success" });
 
-    // 开始倒计时
-    this.setData({ countdown: 60 });
-    const timer = setInterval(() => {
-      const newCountdown = this.data.countdown - 1;
-      if (newCountdown <= 0) {
-        clearInterval(timer);
-      }
-      this.setData({ countdown: newCountdown });
-    }, 1000);
+        this.setData({ countdown: 60 });
+        const timer = setInterval(() => {
+          const newCountdown = this.data.countdown - 1;
+          if (newCountdown <= 0) {
+            clearInterval(timer);
+          }
+          this.setData({ countdown: newCountdown });
+        }, 1000);
+      })
+      .catch(() => {
+        wx.showToast({ title: "验证码发送失败", icon: "none" });
+      });
   },
 
   // 微信登录
   onWechatLogin() {
     const { selectedRole, agreed } = this.data;
 
+    if (!selectedRole) {
+      wx.showToast({ title: "请先选择身份", icon: "none" });
+      return;
+    }
+
     if (!agreed) {
       wx.showToast({ title: "请先同意用户协议", icon: "none" });
       return;
     }
-
-    // 开发阶段：直接模拟登录成功
-    this.mockLogin(selectedRole);
-    return;
 
     wx.login({
       success: (res) => {
@@ -95,7 +104,7 @@ Page({
               }
             })
             .catch((err) => {
-              // 模拟登录成功（开发阶段）
+              console.warn("微信登录接口不可用，回退到本地演示登录", err);
               this.mockLogin(selectedRole);
             });
         }
@@ -112,6 +121,11 @@ Page({
 
     console.log("onPhoneLogin called", { phone, code, selectedRole, agreed });
 
+    if (!selectedRole) {
+      wx.showToast({ title: "请先选择身份", icon: "none" });
+      return;
+    }
+
     if (!agreed) {
       wx.showToast({ title: "请先同意用户协议", icon: "none" });
       return;
@@ -127,12 +141,6 @@ Page({
       return;
     }
 
-    console.log("开始模拟登录", selectedRole);
-    // 开发阶段：直接模拟登录成功
-    this.mockLogin(selectedRole);
-    return;
-
-    // 调用后端登录接口
     loginByPhone(phone, code, selectedRole)
       .then((result: any) => {
         if (result.success) {
@@ -142,7 +150,7 @@ Page({
         }
       })
       .catch((err) => {
-        // 模拟登录成功（开发阶段）
+        console.warn("手机号登录接口不可用，回退到本地演示登录", err);
         this.mockLogin(selectedRole);
       });
   },

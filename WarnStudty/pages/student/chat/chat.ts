@@ -85,6 +85,9 @@ const STORAGE_KEYS = {
 } as const;
 
 let recordRecognitionManager: any = null;
+let studentKeyboardHeightHandler:
+  | ((res: { height: number }) => void)
+  | null = null;
 try {
   const plugin =
     typeof requirePlugin === "function" ? requirePlugin("WechatSI") : null;
@@ -184,9 +187,10 @@ Page({
     this.loadAgentConfig();
     this.initVoiceRecognition();
 
-    wx.onKeyboardHeightChange((res: { height: number }) => {
+    studentKeyboardHeightHandler = (res: { height: number }) => {
       this.setData({ keyboardHeight: res.height });
-    });
+    };
+    wx.onKeyboardHeightChange(studentKeyboardHeightHandler);
   },
 
   onShow() {
@@ -195,7 +199,10 @@ Page({
 
   onUnload() {
     try {
-      wx.offKeyboardHeightChange(() => {});
+      if (studentKeyboardHeightHandler) {
+        wx.offKeyboardHeightChange(studentKeyboardHeightHandler);
+        studentKeyboardHeightHandler = null;
+      }
     } catch (_e) {
       /* empty */
     }

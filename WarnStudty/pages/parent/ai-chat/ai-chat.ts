@@ -66,6 +66,10 @@ const STORAGE_KEYS = {
   agentConfig: "parent_agent_config",
 } as const;
 
+let parentKeyboardHeightHandler:
+  | ((res: { height: number }) => void)
+  | null = null;
+
 interface ChatPageData {
   inputText: string;
   scrollTop: number;
@@ -135,14 +139,18 @@ Page({
   onLoad() {
     this.loadSessions();
     this.loadAgentConfig();
-    wx.onKeyboardHeightChange((res: { height: number }) => {
+    parentKeyboardHeightHandler = (res: { height: number }) => {
       this.setData({ keyboardHeight: res.height });
-    });
+    };
+    wx.onKeyboardHeightChange(parentKeyboardHeightHandler);
   },
 
   onUnload() {
     try {
-      wx.offKeyboardHeightChange(() => {});
+      if (parentKeyboardHeightHandler) {
+        wx.offKeyboardHeightChange(parentKeyboardHeightHandler);
+        parentKeyboardHeightHandler = null;
+      }
     } catch (_e) {
       /* empty */
     }
