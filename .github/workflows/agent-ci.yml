@@ -2,12 +2,12 @@ name: Agent CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop, wcy ]
+    branches: [ main, develop, wcy, MOXI ]
     paths:
       - 'agent/**'
       - '.github/workflows/**'
   pull_request:
-    branches: [ main, develop, wcy ]
+    branches: [ main, develop, wcy, MOXI ]
     paths:
       - 'agent/**'
       - '.github/workflows/**'
@@ -16,7 +16,7 @@ on:
       branch:
         description: 'Branch to run tests on'
         required: false
-        default: 'wcy'
+        default: 'MOXI'
 
 jobs:
   lint:
