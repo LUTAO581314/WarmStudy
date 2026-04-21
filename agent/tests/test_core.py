@@ -230,6 +230,17 @@ class TestIntentRouter:
         assert isinstance(result.reasoning, str)
 
 
+    def test_strong_knowledge_priority_over_psychology(self):
+        """Strong knowledge prompts should win over psychology routing."""
+        result = asyncio.run(self.router.route("为什么我会焦虑？"))
+        assert result.primary == IntentType.KNOWLEDGE_QUERY
+
+    def test_general_chat_pattern_not_escalated_to_knowledge(self):
+        """General chat patterns should stay in general chat."""
+        result = asyncio.run(self.router.route("今天怎么样？"))
+        assert result.primary == IntentType.GENERAL_CHAT
+
+
 # =============================================================================
 # WorkflowEngine Tests
 # =============================================================================
