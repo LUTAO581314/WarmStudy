@@ -3,13 +3,16 @@
  * Backend: http://localhost:8000
  */
 
-const API_BASE = 'http://localhost:8000';
+function getApiBase() {
+  const app = typeof getApp === 'function' ? getApp() : null;
+  return (app && app.globalData && app.globalData.apiBase) || 'http://localhost:8000';
+}
 
 // 请求封装
 function request(url, data, method = 'POST') {
   return new Promise((resolve, reject) => {
     wx.request({
-      url: `${API_BASE}${url}`,
+      url: `${getApiBase()}${url}`,
       data,
       method,
       header: { 'Content-Type': 'application/json' },

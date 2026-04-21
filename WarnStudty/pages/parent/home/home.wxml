@@ -57,41 +57,78 @@
   <view class="section">
     <view class="section-header">
       <text class="section-title">最近心理画像</text>
-      <text class="section-tag">参考值</text>
+      <text class="section-more" bindtap="onViewAllReports">查看完整报告 ›</text>
     </view>
+    <!-- 雷达图：左右布局 -->
     <view class="radar-wrapper">
+      <!-- 左侧雷达图 -->
       <view class="radar-chart">
+        <!-- 四层环形背景 -->
         <view class="radar-ring radar-ring-4"></view>
         <view class="radar-ring radar-ring-3"></view>
         <view class="radar-ring radar-ring-2"></view>
         <view class="radar-ring radar-ring-1"></view>
+        <!-- 六条轴线 -->
         <view class="radar-line radar-line-0"></view>
         <view class="radar-line radar-line-1"></view>
         <view class="radar-line radar-line-2"></view>
         <view class="radar-line radar-line-3"></view>
         <view class="radar-line radar-line-4"></view>
         <view class="radar-line radar-line-5"></view>
-        <view class="radar-dot" style="{{dot0Style}}"></view>
-        <view class="radar-dot" style="{{dot1Style}}"></view>
-        <view class="radar-dot" style="{{dot2Style}}"></view>
-        <view class="radar-dot" style="{{dot3Style}}"></view>
-        <view class="radar-dot" style="{{dot4Style}}"></view>
-        <view class="radar-dot" style="{{dot5Style}}"></view>
-        <text class="radar-lbl lbl-0">学习焦虑</text>
-        <text class="radar-lbl lbl-1">对人焦虑</text>
-        <text class="radar-lbl lbl-2">孤独倾向</text>
-        <text class="radar-lbl lbl-3">自责倾向</text>
-        <text class="radar-lbl lbl-4">过敏倾向</text>
-        <text class="radar-lbl lbl-5">身体症状</text>
+        <canvas
+          canvas-id="radarAreaCanvas"
+          class="radar-area-canvas"
+          width="{{radarCanvasSize}}"
+          height="{{radarCanvasSize}}"
+        ></canvas>
+        <!-- 数据点 -->
+        <view class="radar-dot radar-dot-0" style="{{dot0Style}}"></view>
+        <view class="radar-dot radar-dot-1" style="{{dot1Style}}"></view>
+        <view class="radar-dot radar-dot-2" style="{{dot2Style}}"></view>
+        <view class="radar-dot radar-dot-3" style="{{dot3Style}}"></view>
+        <view class="radar-dot radar-dot-4" style="{{dot4Style}}"></view>
+        <view class="radar-dot radar-dot-5" style="{{dot5Style}}"></view>
+        <!-- 六个轴线标签（紧贴外环外侧） -->
+        <text class="radar-lbl radar-lbl-0">学习焦虑</text>
+        <text class="radar-lbl radar-lbl-1">对人焦虑</text>
+        <text class="radar-lbl radar-lbl-2">孤独倾向</text>
+        <text class="radar-lbl radar-lbl-3">自责倾向</text>
+        <text class="radar-lbl radar-lbl-4">过敏倾向</text>
+        <text class="radar-lbl radar-lbl-5">身体症状</text>
       </view>
+      <!-- 右侧指标列表 -->
       <view class="radar-indicators">
-        <view class="ind-item"><view class="ind-dot" style="background:#f44336"></view><text class="ind-label">学习焦虑</text><text class="ind-score">{{radarScores[0]}}</text></view>
-        <view class="ind-item"><view class="ind-dot" style="background:#e91e63"></view><text class="ind-label">对人焦虑</text><text class="ind-score">{{radarScores[1]}}</text></view>
-        <view class="ind-item"><view class="ind-dot" style="background:#9c27b0"></view><text class="ind-label">孤独倾向</text><text class="ind-score">{{radarScores[2]}}</text></view>
-        <view class="ind-item"><view class="ind-dot" style="background:#ff9800"></view><text class="ind-label">自责倾向</text><text class="ind-score">{{radarScores[3]}}</text></view>
-        <view class="ind-item"><view class="ind-dot" style="background:#2196f3"></view><text class="ind-label">过敏倾向</text><text class="ind-score">{{radarScores[4]}}</text></view>
-        <view class="ind-item"><view class="ind-dot" style="background:#00bcd4"></view><text class="ind-label">身体症状</text><text class="ind-score">{{radarScores[5]}}</text></view>
-        <text class="ind-note">原始分，越低越健康</text>
+        <view class="indicator-item">
+          <view class="indicator-dot" style="background:#166534"></view>
+          <text class="indicator-label">学习焦虑</text>
+          <text class="indicator-score">{{radarScores[0]}}</text>
+        </view>
+        <view class="indicator-item">
+          <view class="indicator-dot" style="background:#1f7a4a"></view>
+          <text class="indicator-label">对人焦虑</text>
+          <text class="indicator-score">{{radarScores[1]}}</text>
+        </view>
+        <view class="indicator-item">
+          <view class="indicator-dot" style="background:#2a8f61"></view>
+          <text class="indicator-label">孤独倾向</text>
+          <text class="indicator-score">{{radarScores[2]}}</text>
+        </view>
+        <view class="indicator-item">
+          <view class="indicator-dot" style="background:#35a478"></view>
+          <text class="indicator-label">自责倾向</text>
+          <text class="indicator-score">{{radarScores[3]}}</text>
+        </view>
+        <view class="indicator-item">
+          <view class="indicator-dot" style="background:#46b690"></view>
+          <text class="indicator-label">过敏倾向</text>
+          <text class="indicator-score">{{radarScores[4]}}</text>
+        </view>
+        <view class="indicator-item">
+          <view class="indicator-dot" style="background:#5cc6a6"></view>
+          <text class="indicator-label">身体症状</text>
+          <text class="indicator-score">{{radarScores[5]}}</text>
+        </view>
+        <view class="indicator-tip">原始分，越低越健康</view>
       </view>
     </view>
     <view class="risk-alert {{riskLevel >= 3 ? 'show' : ''}}">
@@ -139,19 +176,8 @@
       <text class="section-title">成绩趋势</text>
       <text class="section-more">历史 ›</text>
     </view>
-    <view class="grade-list">
-      <view class="grade-item" wx:for="{{recentGrades}}" wx:key="subject">
-        <view class="grade-left">
-          <text class="grade-subject">{{item.subject}}</text>
-          <text class="grade-date">{{item.examDate}}</text>
-        </view>
-        <view class="grade-bar-wrap">
-          <view class="grade-bar-bg">
-            <view class="grade-bar-fill" style="width:{{item.score}}%;background:{{item.score >= 90 ? '#00C853' : item.score >= 75 ? '#FF9500' : '#ff3b30'}}"></view>
-          </view>
-        </view>
-        <text class="grade-score" style="color:{{item.score >= 90 ? '#00C853' : item.score >= 75 ? '#FF9500' : '#ff3b30'}}">{{item.score}}分</text>
-      </view>
+    <view class="trend-placeholder" bindtap="onGradeTrendTap">
+      <text class="trend-placeholder-text">成绩趋势功能开发中</text>
     </view>
   </view>
 
@@ -252,5 +278,21 @@
       </view>
     </view>
   </view>
-  <tab-bar />
+
+  <view class="parent-tabbar">
+    <view class="parent-tab-item active" bindtap="onParentHome">
+      <image class="parent-tab-icon" src="/images/tab-assess-active.png" mode="aspectFit" />
+      <text class="parent-tab-text">孩子</text>
+    </view>
+    <view class="parent-tab-item" bindtap="onParentAI">
+      <view class="dialog-icon-circle">
+        <image class="parent-tab-icon" src="/images/tab-dialog.png" mode="aspectFit" />
+      </view>
+      <text class="parent-tab-text">对话</text>
+    </view>
+    <view class="parent-tab-item" bindtap="onParentSettings">
+      <image class="parent-tab-icon" src="/images/tab-center.png" mode="aspectFit" />
+      <text class="parent-tab-text">设置</text>
+    </view>
+  </view>
 </view>

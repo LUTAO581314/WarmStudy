@@ -1,13 +1,16 @@
 name: Agent CI/CD Pipeline
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   push:
-    branches: [ main, develop, wcy ]
+    branches: [ main, develop, wcy, MOXI ]
     paths:
       - 'agent/**'
       - '.github/workflows/**'
   pull_request:
-    branches: [ main, develop, wcy ]
+    branches: [ main, develop, wcy, MOXI ]
     paths:
       - 'agent/**'
       - '.github/workflows/**'
@@ -16,7 +19,7 @@ on:
       branch:
         description: 'Branch to run tests on'
         required: false
-        default: 'wcy'
+        default: 'MOXI'
 
 jobs:
   lint:
@@ -25,15 +28,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.10'
 
       - name: Cache pip packages
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('agent/requirements*.txt') }}
@@ -67,15 +70,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.10'
 
       - name: Cache pip packages
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('agent/requirements*.txt') }}
@@ -92,23 +95,16 @@ jobs:
         run: |
           pytest agent/tests/ -v --cov=agent --cov-report=xml --cov-report=html --cov-report=term
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        if: github.event_name == 'push'
-        with:
-          files: agent/coverage.xml
-          fail_ci_if_error: false
-
   security:
     name: Security Scan
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.10'
 
@@ -132,10 +128,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.10'
 
@@ -146,7 +142,7 @@ jobs:
           cd agent && python -m build
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dist
           path: agent/dist/

@@ -3,8 +3,8 @@
   <!-- ===== 头部：心理状态概览 ===== -->
   <view class="psych-header">
     <view class="psych-welcome">
-      <text class="welcome-text">{{userInfo.name}}的心理成长中心 🌸</text>
-      <text class="date-text">{{userInfo.grade}}{{userInfo.class}}</text>
+      <text class="welcome-text">{{userInfo.name}}的成长中心</text>
+      <text class="date-text">{{userInfo.grade}}{{userInfo.class ? ' ' + userInfo.class : ''}}</text>
     </view>
     
     <!-- 今日状态卡片 -->
@@ -26,9 +26,9 @@
   </view>
 
   <!-- ===== 心理功能入口 ===== -->
-  <view class="section">
+  <view class="section section-first">
     <view class="section-header">
-      <text class="section-title">🌟 心理成长</text>
+      <text class="section-title">心理成长</text>
       <text class="section-more" bindtap="onPsychCardTap" data-card="{id: 'more'}">更多</text>
     </view>
     
@@ -39,9 +39,8 @@
         wx:key="id"
         bindtap="onPsychCardTap" 
         data-card="{{item}}"
-        style="background: {{item.bgColor}}"
       >
-        <text class="card-icon">{{item.icon}}</text>
+        <image class="card-icon-image" src="{{item.icon}}" mode="aspectFit" />
         <text class="card-title">{{item.title}}</text>
         <text class="card-desc">{{item.desc}}</text>
         <view class="card-tag" wx:if="{{item.tag}}">{{item.tag}}</view>
@@ -52,7 +51,7 @@
   <!-- ===== 本周心理趋势 ===== -->
   <view class="section">
     <view class="section-header">
-      <text class="section-title">📈 本周心理趋势</text>
+      <text class="section-title">本周心理趋势</text>
       <text class="section-more" bindtap="showWeeklyReport">查看详情</text>
     </view>
     
@@ -75,7 +74,7 @@
       <canvas type="2d" id="weekChart" class="week-chart"></canvas>
       
       <view class="trend-suggestions">
-        <text class="suggestions-title">💡 建议</text>
+        <text class="suggestions-title">建议</text>
         <view class="suggestion-item" wx:for="{{reportData.suggestions}}" wx:key="index">
           <text>{{index + 1}}. {{item}}</text>
         </view>
@@ -86,7 +85,7 @@
   <!-- ===== 心理知识推荐 ===== -->
   <view class="section">
     <view class="section-header">
-      <text class="section-title">📚 心理知识</text>
+      <text class="section-title">心理知识</text>
       <text class="section-more" bindtap="showKnowledgeList">查看更多</text>
     </view>
     
@@ -113,13 +112,15 @@
 
   <!-- ===== 紧急求助入口 ===== -->
   <view class="crisis-banner" bindtap="onCrisisHelp">
-    <text class="crisis-icon">🆘</text>
+    <text class="crisis-icon">SOS</text>
     <view class="crisis-info">
       <text class="crisis-title">需要帮助？</text>
       <text class="crisis-desc">如果你感到心理困扰，请告诉我们或寻求专业帮助</text>
     </view>
     <text class="crisis-arrow">›</text>
   </view>
+
+  <view class="logout-btn" bindtap="onLogout">退出登录</view>
 
   <view style="height: 40rpx"></view>
 
@@ -128,7 +129,7 @@
     <view class="modal-mask" bindtap="closeMoodPicker"></view>
     <view class="modal-content mood-picker">
       <view class="modal-header">
-        <text class="modal-title">今日心情怎么样？ 🌸</text>
+        <text class="modal-title">今日状态记录</text>
         <text class="modal-close" bindtap="closeMoodPicker">×</text>
       </view>
       
@@ -150,7 +151,7 @@
       </view>
       
       <view class="mood-hint">
-        <text>每天记录心情，帮助你更好地了解自己 💙</text>
+        <text>持续记录有助于识别状态变化</text>
       </view>
     </view>
   </view>

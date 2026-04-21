@@ -63,7 +63,7 @@
           <image
             wx:if="{{item.role === 'user'}}"
             class="msg-avatar"
-            src="/assets/avatar/user/default.png"
+            src="/images/ui-social.png"
             mode="aspectFill"
           />
         </view>
@@ -80,23 +80,26 @@
         </view>
       </view>
       <view class="stop-btn" bindtap="onStopStreaming">
-        <text class="stop-icon">■</text>
-        <text class="stop-text">停止</text>
+        <view class="stop-dot"></view>
       </view>
     </view>
 
-    <view class="scroll-placeholder" style="height: {{inputAreaHeight + 40}}rpx;"></view>
+    <view class="scroll-placeholder" style="height: calc({{inputAreaHeight + 100}}rpx + {{keyboardHeight}}px);"></view>
   </scroll-view>
 
-  <view class="input-area" style="bottom: {{keyboardHeight}}px;">
+  <view
+    class="input-area"
+    style="bottom: {{keyboardHeight}}px;"
+    wx:if="{{!showToolbox && !showSessionList && !showAgentSettings && !showAvatarPicker && !showContextPanel && !showInfoModal}}"
+  >
     <view wx:if="{{editingMessageId}}" class="edit-banner">
       <text class="edit-hint">编辑消息中...</text>
       <text class="edit-cancel" bindtap="cancelEdit">取消</text>
     </view>
 
     <view class="input-row" wx:if="{{inputMode === 'text'}}">
-      <view class="input-btn" bindtap="onToggleInputMode">
-        <text class="btn-icon">🎤</text>
+      <view class="input-btn mode-btn" bindtap="onToggleInputMode">
+        <image class="voice-icon-image" src="/images/say.png" mode="aspectFit" />
       </view>
 
       <view class="input-wrapper">
@@ -116,8 +119,10 @@
         />
       </view>
 
-      <view class="input-btn" bindtap="onShowToolbox">
-        <text class="btn-icon">+</text>
+      <view class="input-btn plus-btn" bindtap="onShowToolbox">
+        <view class="plus-circle">
+          <text class="plus-icon">+</text>
+        </view>
       </view>
 
       <view class="send-btn {{inputText.length > 0 ? 'active' : ''}}" bindtap="onSend">
@@ -126,8 +131,8 @@
     </view>
 
     <view class="input-row voice-row" wx:if="{{inputMode === 'voice'}}">
-      <view class="input-btn" bindtap="onToggleInputMode">
-        <text class="btn-icon">⌨️</text>
+      <view class="input-btn mode-btn" bindtap="onToggleInputMode">
+        <text class="mode-icon">键</text>
       </view>
 
       <view
@@ -148,15 +153,15 @@
     <view class="menu-mask" bindtap="closeContextMenu"></view>
     <view class="menu-content">
       <view class="menu-item" bindtap="onCopyMessage">
-        <text class="menu-icon">📋</text>
+        <text class="menu-icon">复</text>
         <text class="menu-label">复制</text>
       </view>
-      <view class="menu-item" bindtap="onEditMessage" wx:if="{{messages[contextMenuFor].role === 'user'}}">
-        <text class="menu-icon">✏️</text>
+      <view class="menu-item" bindtap="onEditMessage" wx:if="{{contextMenuRole === 'user'}}">
+        <text class="menu-icon">改</text>
         <text class="menu-label">编辑</text>
       </view>
-      <view class="menu-item" bindtap="onWithdrawMessage" wx:if="{{messages[contextMenuFor].role === 'user'}}">
-        <text class="menu-icon">↩️</text>
+      <view class="menu-item" bindtap="onWithdrawMessage" wx:if="{{contextMenuRole === 'user'}}">
+        <text class="menu-icon">撤</text>
         <text class="menu-label">撤回</text>
       </view>
     </view>
@@ -170,44 +175,44 @@
         <text class="toolbox-close" bindtap="onCloseToolbox">×</text>
       </view>
       <view class="quick-questions">
-        <text class="quick-title">快捷问题</text>
+        <text class="quick-title">常用提问</text>
         <view class="question-list">
-          <view class="question-item" bindtap="onQuickQuestion" data-question="今天心情怎么样？">
-            <text>今天心情怎么样？</text>
+          <view class="question-item" bindtap="onQuickQuestion" data-question="今天整体状态怎么样？">
+            <text>今天整体状态怎么样？</text>
           </view>
-          <view class="question-item" bindtap="onQuickQuestion" data-question="最近学习压力大吗？">
-            <text>最近学习压力大吗？</text>
+          <view class="question-item" bindtap="onQuickQuestion" data-question="最近学习压力是否偏大？">
+            <text>最近学习压力是否偏大？</text>
           </view>
-          <view class="question-item" bindtap="onQuickQuestion" data-question="和同学相处得怎么样？">
-            <text>和同学相处得怎么样？</text>
+          <view class="question-item" bindtap="onQuickQuestion" data-question="最近和同学相处情况如何？">
+            <text>最近和同学相处情况如何？</text>
           </view>
-          <view class="question-item" bindtap="onQuickQuestion" data-question="有什么开心的事想分享吗？">
-            <text>有什么开心的事想分享吗？</text>
+          <view class="question-item" bindtap="onQuickQuestion" data-question="最近最困扰你的事情是什么？">
+            <text>最近最困扰你的事情是什么？</text>
           </view>
         </view>
       </view>
       <view class="toolbox-grid">
         <view class="tool-item" bindtap="onShowContext">
-          <view class="tool-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <text class="tool-emoji">📜</text>
+          <view class="tool-icon tool-icon-context">
+            <text class="tool-emoji">记</text>
           </view>
           <text class="tool-name">查看上下文</text>
         </view>
         <view class="tool-item" bindtap="onShowAgentSettings">
-          <view class="tool-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-            <text class="tool-emoji">⚙️</text>
+          <view class="tool-icon tool-icon-settings">
+            <text class="tool-emoji">设</text>
           </view>
           <text class="tool-name">智能体设置</text>
         </view>
         <view class="tool-item" bindtap="onNewSession">
-          <view class="tool-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-            <text class="tool-emoji">💬</text>
+          <view class="tool-icon tool-icon-session">
+            <text class="tool-emoji">新</text>
           </view>
           <text class="tool-name">新会话</text>
         </view>
         <view class="tool-item" bindtap="onClearHistory">
-          <view class="tool-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
-            <text class="tool-emoji">🗑️</text>
+          <view class="tool-icon tool-icon-clear">
+            <text class="tool-emoji">清</text>
           </view>
           <text class="tool-name">清空历史</text>
         </view>
@@ -262,7 +267,6 @@
 
       <view class="settings-section">
         <view class="section-title">
-          <text class="title-icon">🎭</text>
           <text class="title-text">AI形象</text>
         </view>
         <view class="avatar-picker" bindtap="onShowAvatarPicker">
@@ -277,7 +281,6 @@
 
       <view class="settings-section">
         <view class="section-title">
-          <text class="title-icon">💕</text>
           <text class="title-text">情感浓度</text>
         </view>
         <view class="emotion-slider">
@@ -305,7 +308,6 @@
 
       <view class="settings-section">
         <view class="section-title">
-          <text class="title-icon">ℹ️</text>
           <text class="title-text">关于</text>
         </view>
         <view class="about-item" bindtap="onAboutAgent">
@@ -332,12 +334,12 @@
           data-id="{{avatarId}}"
           bindtap="onSelectAvatar"
         >
-          <image class="option-avatar" src="/images/ai-avatar.png" mode="aspectFill" />
+          <image class="option-avatar" src="/images/ai.png" mode="aspectFill" />
           <view class="option-info">
-            <text class="option-name">{{avatarId === 'default' ? '暖暖' : avatarId === 'wise' ? '智慧导师' : '知心姐姐'}}</text>
-            <text class="option-desc">{{avatarId === 'default' ? '温暖贴心' : avatarId === 'wise' ? '睿智沉稳' : '亲切友善'}}</text>
+            <text class="option-name">{{avatarId === 'default' ? '心理助手' : avatarId === 'wise' ? '学习顾问' : '倾听伙伴'}}</text>
+            <text class="option-desc">{{avatarId === 'default' ? '理性陪伴' : avatarId === 'wise' ? '分析清晰' : '稳重温和'}}</text>
           </view>
-          <view class="option-check" wx:if="{{(avatarId === 'default' && agent.name === '暖暖') || (avatarId === 'wise' && agent.name === '智慧导师') || (avatarId === 'friendly' && agent.name === '知心姐姐')}}">
+          <view class="option-check" wx:if="{{(avatarId === 'default' && agent.name === '心理助手') || (avatarId === 'wise' && agent.name === '学习顾问') || (avatarId === 'friendly' && agent.name === '倾听伙伴')}}">
             <text class="check-icon">✓</text>
           </view>
         </view>
@@ -373,10 +375,10 @@
     <view class="modal-mask"></view>
     <view class="info-panel">
       <view class="info-header">
-        <text class="info-title">认识一下吧！👋</text>
+        <text class="info-title">完善个人资料</text>
       </view>
       <view class="info-body">
-        <text class="info-intro">我是你的好朋友暖暖 🌟\n也是一名专业的AI心理辅导老师。\n\n为了更好地帮助你，我想了解一些关于你的信息：</text>
+        <text class="info-intro">为提供更准确的支持，请先填写以下信息：</text>
 
         <view class="form-item">
           <text class="form-label">你的名字</text>
