@@ -10,6 +10,7 @@
 - PPT/demo outline: `docs/PPT_AND_DEMO_OUTLINE.md`
 - Competition checklist: `docs/COMPETITION_SUBMISSION_CHECKLIST.md`
 - Backend quick start: `agent/start_all.ps1` or `agent/start_all.bat`
+- Psychology dataset import: `py -3.11 agent/tools/import_psych_dataset.py --reset`
 
 > Note: for onboarding and delivery, start with the files under `docs/`.
 
