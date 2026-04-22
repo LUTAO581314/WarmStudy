@@ -1,0 +1,19 @@
+{
+  "conversation_library": [
+    {
+      "id": "case_001",
+      "scenario_type": "学习压力",
+      "user_type": "student",
+      "user_input": "我最近压力很大",
+      "emotion_detected": "anxious",
+      "emotion_intensity": 0.8,
+      "risk_level": "low",
+      "ai_response": "我理解你的压力。",
+      "intervention_type": "共情倾听",
+      "keywords": [
+        "学习压力"
+      ],
+      "related_knowledge": "考试焦虑_CBT"
+    }
+  ]
+}

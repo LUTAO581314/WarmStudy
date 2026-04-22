@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  warmstudy-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: warmstudy-agent
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      FLASK_ENV: ${FLASK_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      PYTHONPATH: /app
+      RAG_AGENT_URL: http://localhost:5177
+      CHAT_MODEL: ${CHAT_MODEL:-qwen}
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY:-}
+      DASHSCOPE_MODEL: ${DASHSCOPE_MODEL:-qwen-plus}
+      AGENT_API_KEY: ${AGENT_API_KEY:-}
+      REDIS_URL: ${REDIS_URL:-redis://localhost:6379}
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/gateway/status"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s

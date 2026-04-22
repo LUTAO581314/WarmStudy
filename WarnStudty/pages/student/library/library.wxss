@@ -1,0 +1,482 @@
+/* library.wxss - 心理成长中心 */
+.page {
+  background: #f4f6f8;
+  min-height: 100vh;
+  padding-bottom: 120rpx;
+}
+
+/* ===== 心理头部 ===== */
+.psych-header {
+  background: #ffffff;
+  padding: 40rpx 32rpx 100rpx;
+  border-bottom: 1rpx solid #e5e7eb;
+}
+.psych-welcome {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24rpx;
+}
+.welcome-text {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: 1rpx;
+}
+.date-text {
+  font-size: 24rpx;
+  color: #6b7280;
+}
+
+/* 今日心情卡片 */
+.today-mood-card {
+  background: #ffffff;
+  border-radius: 26rpx;
+  padding: 28rpx;
+  box-shadow: 0 6rpx 16rpx rgba(17, 24, 39, 0.06);
+  border: 1rpx solid #e5e7eb;
+}
+.mood-main {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+}
+.mood-icon {
+  font-size: 64rpx;
+}
+.mood-info {
+  flex: 1;
+}
+.mood-label {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+}
+.mood-score {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+.mood-btn {
+  background: #338b6d;
+  color: #fff;
+  border-radius: 30rpx;
+  padding: 14rpx 28rpx;
+  font-size: 26rpx;
+  font-weight: 500;
+}
+.mood-track {
+  height: 12rpx;
+  background: #eee;
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+.mood-fill {
+  height: 100%;
+  background: #338b6d;
+  border-radius: 6rpx;
+  transition: width 0.4s ease;
+}
+
+/* ===== 功能网格 ===== */
+.section {
+  margin: 18rpx 24rpx 0;
+  background: #fff;
+  border-radius: 26rpx;
+  padding: 24rpx;
+  box-shadow: 0 6rpx 16rpx rgba(17, 24, 39, 0.06);
+  border: 1rpx solid #e5e7eb;
+}
+
+.section-first {
+  margin-top: -60rpx;
+}
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18rpx;
+}
+.section-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #111827;
+}
+.section-more {
+  font-size: 26rpx;
+  color: #338b6d;
+}
+
+.psych-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14rpx;
+}
+.psych-card {
+  background: #f8fafc;
+  border-radius: 20rpx;
+  border: 1rpx solid #e2e8f0;
+  padding: 18rpx 12rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+}
+.psych-card:active {
+  transform: scale(0.96);
+}
+.card-icon {
+  font-size: 44rpx;
+  margin-bottom: 8rpx;
+}
+
+.card-icon-image {
+  width: 46rpx;
+  height: 46rpx;
+  margin-bottom: 8rpx;
+}
+.card-title {
+  font-size: 24rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 4rpx;
+}
+.card-desc {
+  font-size: 19rpx;
+  color: #666;
+  line-height: 1.4;
+}
+.card-tag {
+  position: absolute;
+  top: 12rpx;
+  right: 12rpx;
+  background: rgba(255, 255, 255, 0.9);
+  color: #338b6d;
+  font-size: 18rpx;
+  padding: 4rpx 10rpx;
+  border-radius: 8rpx;
+  font-weight: 500;
+}
+
+/* ===== 本周趋势 ===== */
+.week-trend-card {
+  background: #f8fafc;
+  border-radius: 20rpx;
+  padding: 20rpx;
+  border: 1rpx solid #e2e8f0;
+}
+.trend-main {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+.trend-score {
+  display: flex;
+  align-items: baseline;
+  margin-right: 20rpx;
+}
+.score-num {
+  font-size: 56rpx;
+  font-weight: 700;
+  color: #338b6d;
+}
+.score-unit {
+  font-size: 24rpx;
+  color: #999;
+  margin-left: 4rpx;
+}
+.trend-info {
+  flex: 1;
+}
+.trend-label {
+  font-size: 24rpx;
+  color: #666;
+  display: block;
+}
+.trend-badge {
+  display: inline-block;
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+}
+.trend-badge.up {
+  background: #e8f5e9;
+  color: #4caf50;
+}
+.trend-badge.down {
+  background: #ffebee;
+  color: #f44336;
+}
+.trend-badge.stable {
+  background: #e3f2fd;
+  color: #2196f3;
+}
+
+.week-chart {
+  width: 100%;
+  height: 160rpx;
+  margin: 8rpx 0;
+}
+
+.trend-suggestions {
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #ddd;
+}
+.suggestions-title {
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 12rpx;
+}
+.suggestion-item {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.8;
+}
+
+/* ===== 心理知识列表 ===== */
+.knowledge-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+.knowledge-item {
+  background: #f8f9fc;
+  border-radius: 16rpx;
+  padding: 18rpx;
+  transition: background 0.2s;
+}
+.knowledge-item:active {
+  background: #f0f2f5;
+}
+.knowledge-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+.knowledge-header {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+.knowledge-category {
+  font-size: 22rpx;
+  color: #338b6d;
+  background: #e2e8f0;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+}
+.knowledge-new {
+  font-size: 20rpx;
+  color: #fff;
+  background: #f44336;
+  padding: 2rpx 8rpx;
+  border-radius: 6rpx;
+}
+.knowledge-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+.knowledge-summary {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.knowledge-time {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 4rpx;
+}
+
+/* ===== 紧急求助 ===== */
+.crisis-banner {
+  margin: 16rpx 24rpx;
+  background: #8b2626;
+  border-radius: 20rpx;
+  padding: 22rpx;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  color: #fff;
+}
+.crisis-icon {
+  font-size: 30rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  flex-shrink: 0;
+}
+.crisis-info {
+  flex: 1;
+}
+.crisis-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 4rpx;
+}
+.crisis-desc {
+  font-size: 22rpx;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+.crisis-arrow {
+  font-size: 40rpx;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.logout-btn {
+  margin: 20rpx 24rpx 0;
+  text-align: center;
+  font-size: 30rpx;
+  color: #ff3b30;
+  padding: 24rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  border: 1rpx solid #fee2e2;
+}
+
+/* ===== 模态框 ===== */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.modal.show {
+  opacity: 1;
+  pointer-events: all;
+}
+.modal-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+.modal-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 32rpx 32rpx 0 0;
+  padding: 32rpx;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+.modal.show .modal-content {
+  transform: translateY(0);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+.modal-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #1a1a1a;
+}
+.modal-close {
+  font-size: 48rpx;
+  color: #999;
+  line-height: 1;
+}
+
+/* 情绪选择器 */
+.mood-options {
+  display: flex;
+  justify-content: space-around;
+  padding: 20rpx 0;
+}
+.mood-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  padding: 20rpx;
+  border-radius: 16rpx;
+  transition: background 0.2s;
+}
+.mood-option:active {
+  background: #f5f5f5;
+}
+.mood-emoji {
+  font-size: 64rpx;
+}
+.mood-text {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.mood-hint {
+  text-align: center;
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid #eee;
+}
+
+/* 知识详情 */
+.knowledge-detail {
+  margin-bottom: 32rpx;
+}
+.detail-meta {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+.detail-category {
+  font-size: 24rpx;
+  color: #10b981;
+}
+.detail-time {
+  font-size: 24rpx;
+  color: #999;
+}
+.detail-summary {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+.modal-actions {
+  padding-top: 20rpx;
+}
+.action-btn {
+  width: 100%;
+  background: #10b981;
+  color: #fff;
+  border-radius: 50rpx;
+  padding: 24rpx 0;
+  font-size: 32rpx;
+  font-weight: bold;
+  border: none;
+}
+.action-btn::after {
+  border: none;
+}

@@ -1,0 +1,53 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/student/assessment/assessment",
+    "pages/student/chat/chat",
+    "pages/student/library/library",
+    "pages/student/library/knowledge/knowledge",
+    "pages/parent/home/home",
+    "pages/parent/ai-chat/ai-chat",
+    "pages/parent/settings/settings",
+    "pages/parent/alerts/alerts",
+    "pages/parent/report-detail/report-detail"
+  ],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "WarmStudy",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#F5F5F5"
+  },
+  "tabBar": {
+    "custom": false,
+    "color": "#94A3B8",
+    "selectedColor": "#10b981",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/student/assessment/assessment",
+        "text": "测评",
+        "iconPath": "images/tab-assess.png",
+        "selectedIconPath": "images/tab-assess-active.png"
+      },
+      {
+        "pagePath": "pages/student/chat/chat",
+        "text": "对话",
+        "iconPath": "images/tab-dialog.png",
+        "selectedIconPath": "images/tab-dialog-active.png"
+      },
+      {
+        "pagePath": "pages/student/library/library",
+        "text": "中心",
+        "iconPath": "images/tab-center.png",
+        "selectedIconPath": "images/tab-center-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "componentFramework": "glass-easel",
+  "lazyCodeLoading": "requiredComponents",
+  "miniApp": {
+    "useAuthorizePage": true
+  }
+}

@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Data (regeneratable)
+agent/uploads/
+agent/data/*.pdf
+agent/data/*.txt
+chroma_db/
+*.db
+
+# Environment
+.env
+.env.local
+
+# Temporary / cache
+.pytest_cache/
+pytest-cache-files-*/
+agent/pytest-cache-files-*/
+
+*.tgz

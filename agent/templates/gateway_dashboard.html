@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WarmStudy 管理员后台</title>
+  <style>
+    :root {
+      --bg: #f3f7fb;
+      --panel: #ffffff;
+      --panel-soft: #f8fbff;
+      --border: #d7e3f0;
+      --text: #16324a;
+      --muted: #648096;
+      --primary: #0f766e;
+      --primary-soft: #ccfbf1;
+      --accent: #2563eb;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 28%),
+        linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+    }
+
+    .page {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .hero, .section, .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 28px;
+      margin-bottom: 22px;
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 34px;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      line-height: 1.75;
+      margin: 0;
+    }
+
+    .hero-meta {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .meta-item {
+      padding: 14px 16px;
+      background: var(--panel-soft);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    .meta-item strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+    }
+
+    .span-12 { grid-column: span 12; }
+    .span-8 { grid-column: span 8; }
+    .span-6 { grid-column: span 6; }
+    .span-4 { grid-column: span 4; }
+
+    .section {
+      padding: 22px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .section-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .stat {
+      padding: 16px;
+      background: var(--panel-soft);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+
+    .stat small {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat strong {
+      font-size: 26px;
+    }
+
+    .toolbar, .form-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 16px;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    button.secondary { background: var(--primary); }
+    button.ghost { background: #eef2ff; color: var(--accent); }
+    button.danger { background: var(--danger); }
+
+    .forms-grid, .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .console {
+      min-height: 220px;
+      border-radius: 14px;
+      background: #0f172a;
+      color: #dbeafe;
+      padding: 16px;
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .scroll {
+      overflow: auto;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #eef6ff;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #eef6ff;
+      color: var(--accent);
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #22c55e;
+    }
+
+    .status-dot.offline {
+      background: var(--danger);
+    }
+
+    @media (max-width: 1100px) {
+      .hero, .forms-grid, .two-col {
+        grid-template-columns: 1fr;
+      }
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .span-8, .span-6, .span-4 {
+        grid-column: span 12;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .page {
+        padding: 16px;
+      }
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">唯一管理员后台</div>
+        <h1>WarmStudy 统一管理控制台</h1>
+        <p>这个后台统一承载服务器部署后的所有可视化管理能力，包括 App 后台总览、用户与登录记录、模型使用情况、预警与报告概览，以及 RAG 知识库上传、检索、对话、删除、重建等操作。其它端口不再提供独立 Web UI。</p>
+      </div>
+      <div class="hero-meta">
+        <div class="meta-item"><strong>管理员入口</strong><span>当前页面 `/`，网关端口 `8000`</span></div>
+        <div class="meta-item"><strong>内部 RAG 服务</strong><span id="ragAgentUrl">{{ rag_agent_url }}</span></div>
+        <div class="meta-item"><strong>页面刷新</strong><span>使用顶部按钮可重新拉取后台与 RAG 状态</span></div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="section span-12">
+        <div class="section-head">
+          <div>
+            <h2>系统概览</h2>
+            <p>网关、App 后台、RAG 状态与模型调用总览</p>
+          </div>
+          <div class="toolbar">
+            <button onclick="refreshOverview()">刷新总览</button>
+          </div>
+        </div>
+        <div class="stats" id="overviewStats"></div>
+        <div class="chips" id="overviewChips" style="margin-top:16px;"></div>
+      </section>
+
+      <section class="section span-8">
+        <div class="section-head">
+          <div>
+            <h2>用户与登录</h2>
+            <p>学生、家长、绑定关系、登录明细</p>
+          </div>
+          <div class="toolbar">
+            <button class="ghost" onclick="refreshUsers()">刷新用户</button>
+            <button class="ghost" onclick="refreshLogins()">刷新登录</button>
+          </div>
+        </div>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>用户</th>
+                <th>角色</th>
+                <th>联系方式</th>
+                <th>打卡</th>
+                <th>报告</th>
+                <th>预警/孩子数</th>
+              </tr>
+            </thead>
+            <tbody id="usersTable"></tbody>
+          </table>
+        </div>
+        <h3 style="margin:18px 0 10px;">最近登录</h3>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>时间</th>
+                <th>用户</th>
+                <th>角色</th>
+                <th>方式</th>
+              </tr>
+            </thead>
+            <tbody id="loginsTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section span-4">
+        <div class="section-head">
+          <div>
+            <h2>模型与活动</h2>
+            <p>Qwen 使用情况与近期后台操作</p>
+          </div>
+          <button class="ghost" onclick="refreshModelUsage()">刷新模型</button>
+        </div>
+        <div id="modelUsageBox"></div>
+        <h3 style="margin:18px 0 10px;">最近活动</h3>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>时间</th>
+                <th>事件</th>
+                <th>说明</th>
+              </tr>
+            </thead>
+            <tbody id="activityTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="section span-6">
+        <div class="section-head">
+          <div>
+            <h2>RAG 管理</h2>
+            <p>上传、更新、删除、重建知识库</p>
+          </div>
+          <button class="ghost" onclick="refreshOverview()">同步状态</button>
+        </div>
+        <div class="forms-grid">
+          <div>
+            <div class="field">
+              <label>上传文档入库</label>
+              <input type="file" id="ingestFile">
+            </div>
+            <div class="form-actions">
+              <button class="secondary" onclick="ingestFile()">同步上传</button>
+            </div>
+          </div>
+          <div>
+            <div class="field">
+              <label>按来源更新文档</label>
+              <input id="updateSource" placeholder="例如：心理手册.pdf">
+            </div>
+            <div class="field">
+              <label>更新文件</label>
+              <input type="file" id="updateFile">
+            </div>
+            <div class="form-actions">
+              <button onclick="updateFile()">更新来源</button>
+            </div>
+          </div>
+        </div>
+        <div class="two-col" style="margin-top:14px;">
+          <div>
+            <div class="field">
+              <label>按来源删除</label>
+              <input id="deleteSource" placeholder="输入 source 字段">
+            </div>
+            <div class="form-actions">
+              <button class="danger" onclick="deleteSource()">删除来源</button>
+            </div>
+          </div>
+          <div>
+            <div class="field">
+              <label>危险操作</label>
+              <input value="重建整个知识库集合" disabled>
+            </div>
+            <div class="form-actions">
+              <button class="danger" onclick="resetKnowledgeBase()">重置知识库</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section span-6">
+        <div class="section-head">
+          <div>
+            <h2>RAG 检索与问答</h2>
+            <p>检索知识、测试混合搜索、验证模型回答</p>
+          </div>
+        </div>
+        <div class="field">
+          <label>搜索问题</label>
+          <textarea id="searchQuery" placeholder="输入知识检索问题"></textarea>
+        </div>
+        <div class="form-actions">
+          <button onclick="searchKnowledge()">知识检索</button>
+          <button class="ghost" onclick="chatKnowledge()">RAG 问答</button>
+        </div>
+      </section>
+
+      <section class="section span-12">
+        <div class="section-head">
+          <div>
+            <h2>结果控制台</h2>
+            <p>所有操作反馈、搜索结果、日志摘要都显示在这里</p>
+          </div>
+          <button class="ghost" onclick="clearConsole()">清空输出</button>
+        </div>
+        <div class="console" id="console"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const consoleEl = document.getElementById("console");
+
+    function writeConsole(title, payload) {
+      const line = `\n[${new Date().toLocaleString()}] ${title}\n${typeof payload === "string" ? payload : JSON.stringify(payload, null, 2)}\n`;
+      consoleEl.textContent = line + consoleEl.textContent;
+    }
+
+    function clearConsole() {
+      consoleEl.textContent = "";
+    }
+
+    async function fetchJson(url, options = {}) {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || data.message || `Request failed: ${response.status}`);
+      }
+      return data;
+    }
+
+    function setStats(app, usage, rag) {
+      const stats = [
+        ["学生数", app.students || 0],
+        ["家长数", app.parents || 0],
+        ["打卡数", app.checkins || 0],
+        ["报告数", app.reports || 0],
+        ["预警数", `${app.alerts || 0} / 未读 ${app.unread_alerts || 0}`],
+        ["模型请求", usage.requests || 0],
+        ["RAG Chunk", rag?.status?.count ?? rag?.index?.info?.total_chunks ?? 0],
+        ["缓存条目", rag?.status?.cache_size ?? 0],
+      ];
+      document.getElementById("overviewStats").innerHTML = stats.map(([label, value]) => `
+        <div class="stat">
+          <small>${label}</small>
+          <strong>${value}</strong>
+        </div>
+      `).join("");
+
+      const ragHealthy = rag?.health?.status || rag?.health?.ok || "unknown";
+      const chips = [
+        `Gateway: healthy`,
+        `RAG Health: ${ragHealthy}`,
+        `Model: ${usage.provider || "qwen"} / ${usage.model || "qwen-plus"}`,
+        `Last Used: ${usage.last_used_at || "-"}`,
+      ];
+      document.getElementById("overviewChips").innerHTML = chips.map(text => `<span class="chip">${text}</span>`).join("");
+    }
+
+    function renderUsers(users) {
+      document.getElementById("usersTable").innerHTML = users.map(user => `
+        <tr>
+          <td>${user.name}<br><small>${user.user_id}</small></td>
+          <td>${user.role}</td>
+          <td>${user.phone || "-"}</td>
+          <td>${user.checkins}</td>
+          <td>${user.reports}</td>
+          <td>${user.role === "parent" ? user.children_count : user.alerts}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderLogins(events) {
+      document.getElementById("loginsTable").innerHTML = events.map(item => `
+        <tr>
+          <td>${item.created_at}</td>
+          <td>${item.user_id}</td>
+          <td>${item.role}</td>
+          <td>${item.provider}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderActivity(events) {
+      document.getElementById("activityTable").innerHTML = events.map(item => `
+        <tr>
+          <td>${item.created_at}</td>
+          <td>${item.title}</td>
+          <td>${item.actor || "-"} / ${item.details || "-"}</td>
+        </tr>
+      `).join("");
+    }
+
+    function renderModelUsage(usage) {
+      const scenes = Object.entries(usage.scenes || {}).map(([key, value]) => `<span class="chip">${key}: ${value}</span>`).join("");
+      document.getElementById("modelUsageBox").innerHTML = `
+        <div class="stat" style="margin-bottom:12px;">
+          <small>Provider</small>
+          <strong>${usage.provider || "qwen"}</strong>
+        </div>
+        <div class="stat" style="margin-bottom:12px;">
+          <small>Model</small>
+          <strong>${usage.model || "qwen-plus"}</strong>
+        </div>
+        <div class="stat" style="margin-bottom:12px;">
+          <small>Requests / Success / Failed</small>
+          <strong>${usage.requests || 0} / ${usage.success || 0} / ${usage.failed || 0}</strong>
+        </div>
+        <div class="stat" style="margin-bottom:12px;">
+          <small>Prompt Chars</small>
+          <strong>${usage.prompt_chars || 0}</strong>
+        </div>
+        <div class="chips">${scenes || '<span class="chip">暂无调用</span>'}</div>
+      `;
+    }
+
+    async function refreshOverview() {
+      const data = await fetchJson("/api/admin/overview");
+      setStats(data.app, data.model_usage, data.rag);
+      renderLogins(data.recent_logins || []);
+      renderActivity(data.recent_activity || []);
+      renderModelUsage(data.model_usage || {});
+      writeConsole("刷新系统概览", data);
+    }
+
+    async function refreshUsers() {
+      const data = await fetchJson("/api/admin/users");
+      renderUsers(data.users || []);
+      writeConsole("刷新用户列表", data);
+    }
+
+    async function refreshLogins() {
+      const data = await fetchJson("/api/admin/logins?limit=20");
+      renderLogins(data.events || []);
+      writeConsole("刷新登录记录", data);
+    }
+
+    async function refreshActivity() {
+      const data = await fetchJson("/api/admin/activity?limit=20");
+      renderActivity(data.events || []);
+      writeConsole("刷新活动记录", data);
+    }
+
+    async function refreshModelUsage() {
+      const data = await fetchJson("/api/admin/model-usage");
+      renderModelUsage(data.usage || {});
+      writeConsole("刷新模型使用", data);
+    }
+
+    async function ingestFile() {
+      const file = document.getElementById("ingestFile").files[0];
+      if (!file) {
+        writeConsole("上传失败", "请选择文件");
+        return;
+      }
+      const form = new FormData();
+      form.append("file", file);
+      const response = await fetch("/api/gateway/rag/ingest/sync", { method: "POST", body: form });
+      const data = await response.json();
+      writeConsole("同步上传知识文件", data);
+      refreshOverview();
+    }
+
+    async function updateFile() {
+      const file = document.getElementById("updateFile").files[0];
+      const source = document.getElementById("updateSource").value.trim();
+      if (!file || !source) {
+        writeConsole("更新失败", "请填写来源并选择文件");
+        return;
+      }
+      const form = new FormData();
+      form.append("file", file);
+      form.append("source", source);
+      const response = await fetch("/api/gateway/rag/update", { method: "POST", body: form });
+      const data = await response.json();
+      writeConsole("更新知识来源", data);
+      refreshOverview();
+    }
+
+    async function deleteSource() {
+      const source = document.getElementById("deleteSource").value.trim();
+      if (!source) {
+        writeConsole("删除失败", "请填写来源");
+        return;
+      }
+      const data = await fetchJson("/api/gateway/rag/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ source })
+      });
+      writeConsole("删除知识来源", data);
+      refreshOverview();
+    }
+
+    async function resetKnowledgeBase() {
+      const confirmed = window.confirm("确认重置整个知识库吗？");
+      if (!confirmed) return;
+      const data = await fetchJson("/api/gateway/rag/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      });
+      writeConsole("重置知识库", data);
+      refreshOverview();
+    }
+
+    async function searchKnowledge() {
+      const q = document.getElementById("searchQuery").value.trim();
+      if (!q) {
+        writeConsole("检索失败", "请输入问题");
+        return;
+      }
+      const data = await fetchJson(`/api/gateway/rag/search?q=${encodeURIComponent(q)}&n=8`);
+      writeConsole("知识检索结果", data);
+    }
+
+    async function chatKnowledge() {
+      const q = document.getElementById("searchQuery").value.trim();
+      if (!q) {
+        writeConsole("问答失败", "请输入问题");
+        return;
+      }
+      const data = await fetchJson("/api/gateway/rag/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: q, n: 5, use_hybrid: true })
+      });
+      writeConsole("RAG 问答结果", data);
+      refreshModelUsage();
+    }
+
+    async function bootstrap() {
+      await Promise.all([refreshOverview(), refreshUsers(), refreshActivity()]);
+    }
+
+    bootstrap().catch(error => writeConsole("初始化失败", error.message));
+  </script>
+</body>
+</html>
