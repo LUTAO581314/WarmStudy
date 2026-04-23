@@ -9,6 +9,7 @@ Responsibilities:
 
 from __future__ import annotations
 
+import json
 import os
 import random
 import time
@@ -16,9 +17,10 @@ from copy import deepcopy
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 import requests
-from flask import Flask, Response, jsonify, render_template, request
+from flask import Flask, Response, g, jsonify, render_template, request
 
 from agent.strategy_engine import (
     build_parent_strategy,
@@ -29,9 +31,58 @@ from agent.strategy_engine import (
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
-RAG_AGENT_URL = os.getenv("RAG_AGENT_URL", "http://localhost:5177")
 DEFAULT_DEV_AGENT_KEY = "agent_dev_key_12345"
 ENV_FILE = Path(__file__).parent / ".env"
+CONFIG_FILE = Path(__file__).parent / "config" / "gateway.json"
+
+
+DEFAULT_GATEWAY_CONFIG: dict[str, Any] = {
+    "server": {
+        "host": "0.0.0.0",
+        "port": 8000,
+    },
+    "rag_service": {
+        "base_url": os.getenv("RAG_AGENT_URL", "http://localhost:5177"),
+        "timeout": 60,
+        "health_timeout": 15,
+        "retry": 2,
+    },
+    "routes": {
+        "aliases": [
+            {"path": "/api/chat", "target": "/api/gateway/rag/chat", "methods": ["POST"], "description": "Legacy RAG chat alias"},
+            {"path": "/api/agent/chat", "target": "/api/gateway/rag/chat", "methods": ["POST"], "description": "Agent chat alias"},
+            {"path": "/api/student/chat", "target": "/api/student/chat", "methods": ["POST"], "description": "Student companion chat"},
+            {"path": "/api/parent/chat", "target": "/api/parent/chat", "methods": ["POST"], "description": "Parent support chat"},
+        ]
+    },
+}
+
+
+def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+    merged = deepcopy(base)
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            merged[key] = _deep_merge(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
+
+
+def _load_gateway_config() -> dict[str, Any]:
+    config = deepcopy(DEFAULT_GATEWAY_CONFIG)
+    if CONFIG_FILE.exists():
+        try:
+            file_config = json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
+            config = _deep_merge(config, file_config)
+        except Exception:
+            pass
+    return config
+
+
+GATEWAY_CONFIG = _load_gateway_config()
+RAG_AGENT_URL = str(GATEWAY_CONFIG["rag_service"]["base_url"]).rstrip("/")
+RAG_TIMEOUT = int(GATEWAY_CONFIG["rag_service"]["timeout"])
+RAG_HEALTH_TIMEOUT = int(GATEWAY_CONFIG["rag_service"]["health_timeout"])
 
 
 mock_database: dict[str, Any] = {
@@ -133,6 +184,22 @@ def _record_model_usage(scene: str, *, prompt_text: str = "", success: bool = Tr
         usage["failed"] += 1
 
 
+@app.before_request
+def attach_request_context():
+    g.request_id = request.headers.get("X-Request-ID") or uuid4().hex[:12]
+    g.request_started_at = time.time()
+
+
+@app.after_request
+def append_response_headers(response: Response):
+    response.headers["X-Request-ID"] = getattr(g, "request_id", uuid4().hex[:12])
+    started_at = getattr(g, "request_started_at", None)
+    if started_at is not None:
+        duration_ms = round((time.time() - started_at) * 1000, 2)
+        response.headers["X-Response-Time-Ms"] = str(duration_ms)
+    return response
+
+
 def _admin_recent_events(key: str, limit: int = 20) -> list[dict[str, Any]]:
     events = deepcopy(mock_database["admin"][key])
     events.sort(key=lambda item: item["created_at"], reverse=True)
@@ -231,6 +298,23 @@ def _internal_agent_api_key() -> str:
     return os.getenv("AGENT_API_KEY") or DEFAULT_DEV_AGENT_KEY
 
 
+def _route_registry() -> list[dict[str, Any]]:
+    aliases = deepcopy(GATEWAY_CONFIG.get("routes", {}).get("aliases", []))
+    aliases.extend(
+        [
+            {"path": "/api/admin/overview", "target": "gateway:self", "methods": ["GET"], "description": "Admin overview"},
+            {"path": "/api/admin/users", "target": "gateway:self", "methods": ["GET"], "description": "Admin users"},
+            {"path": "/api/admin/logins", "target": "gateway:self", "methods": ["GET"], "description": "Admin logins"},
+            {"path": "/api/admin/activity", "target": "gateway:self", "methods": ["GET"], "description": "Admin activity"},
+            {"path": "/api/admin/model-usage", "target": "gateway:self", "methods": ["GET"], "description": "Model usage"},
+            {"path": "/api/admin/model-config", "target": f"{RAG_AGENT_URL}/api/admin/model-config", "methods": ["GET", "POST"], "description": "Model config proxy"},
+            {"path": "/api/health", "target": "gateway:self", "methods": ["GET"], "description": "Gateway health"},
+            {"path": "/api/admin/routes", "target": "gateway:self", "methods": ["GET"], "description": "Gateway route registry"},
+        ]
+    )
+    return aliases
+
+
 def _proxy_to_rag(
     path: str,
     method: str = "GET",
@@ -278,7 +362,7 @@ def _proxy_to_rag(
                 "url": url,
                 "params": params,
                 "headers": headers,
-                "timeout": timeout,
+                "timeout": timeout or RAG_TIMEOUT,
             }
             if json_body is not None and method in {"POST", "PUT", "PATCH", "DELETE"}:
                 kwargs["json"] = json_body
@@ -308,7 +392,8 @@ def _proxy_to_rag(
 def _safe_json_from_rag(path: str, method: str = "GET", **kwargs):
     headers = kwargs.pop("headers", {})
     try:
-        resp = requests.request(method=method, url=_rag_url(path), timeout=15, headers=headers, **kwargs)
+        timeout = kwargs.pop("timeout", RAG_HEALTH_TIMEOUT)
+        resp = requests.request(method=method, url=_rag_url(path), timeout=timeout, headers=headers, **kwargs)
         resp.raise_for_status()
         return resp.json()
     except Exception as exc:  # pragma: no cover - diagnostic fallback
@@ -321,22 +406,6 @@ def _child_name(child_id: str) -> str:
 
 def _child_grade(child_id: str) -> str:
     return mock_database["students"].get(child_id, {}).get("grade", "初一")
-
-
-def _ensure_student_profile(user_id: str, *, phone: str | None = None, role: str = "student") -> dict[str, Any]:
-    existing = mock_database["students"].get(user_id)
-    if existing:
-        return existing
-
-    profile = {
-        "user_id": user_id,
-        "name": f"{'学生' if role == 'student' else '用户'}{user_id[-4:]}",
-        "phone": phone or "",
-        "role": role,
-        "grade": "初一",
-    }
-    mock_database["students"][user_id] = profile
-    return profile
 
 
 def _ensure_student_profile(user_id: str, *, phone: str | None = None, role: str = "student") -> dict[str, Any]:
@@ -572,49 +641,6 @@ def _build_report(user_id: str, scale_id: str, answers: list[int]) -> dict[str, 
         "created_at": now_str(),
     }
     return report
-
-
-def _build_status_payload(user_id: str) -> dict[str, Any]:
-    student = _ensure_student_profile(user_id)
-    reports = mock_database["psych_reports"].get(user_id, [])
-    latest_report = reports[-1] if reports else None
-    latest_checkins = mock_database["checkins"].get(user_id, [])[-7:]
-
-    if latest_checkins:
-        metrics = {
-            "emotion": round(sum(item.get("emotion", 3) for item in latest_checkins) / len(latest_checkins), 1),
-            "sleep": round(sum(item.get("sleep", 3) for item in latest_checkins) / len(latest_checkins), 1),
-            "study": round(sum(item.get("study", 3) for item in latest_checkins) / len(latest_checkins), 1),
-            "social": round(sum(item.get("social", 3) for item in latest_checkins) / len(latest_checkins), 1),
-        }
-    else:
-        metrics = {"emotion": 3, "sleep": 3, "study": 3, "social": 3}
-
-    radar_scores = latest_report["radarScores"] if latest_report else [3, 3, 3, 3, 3, 3]
-    risk_level = latest_report["riskLevel"] if latest_report else 0
-
-    return {
-        "success": True,
-        "status": "ok",
-        "user_id": user_id,
-        "psych": {
-            "metrics": metrics,
-            "latest_report": {
-                "level": latest_report["level"] if latest_report else "normal",
-                "normalized": latest_report["normalized"] if latest_report else 0,
-                "date": latest_report["date"] if latest_report else None,
-            },
-        },
-        "radarScores": radar_scores,
-        "riskLevel": risk_level,
-        "summary": {
-            "profile": {
-                "user_id": user_id,
-                "name": student["name"],
-                "grade": student.get("grade", "初一"),
-            }
-        },
-    }
 
 
 def _build_status_payload(user_id: str) -> dict[str, Any]:
@@ -1277,13 +1303,22 @@ def mark_all_alerts_read():
 
 @app.route("/api/health", methods=["GET"])
 def health_check():
+    rag_health = _safe_json_from_rag("/api/health")
+    gateway_ok = rag_health.get("ok", True) if isinstance(rag_health, dict) else True
     return jsonify(
         {
             "success": True,
-            "status": "healthy",
+            "status": "healthy" if gateway_ok else "degraded",
             "timestamp": datetime.now().isoformat(),
             "service": "warmstudy-api-gateway",
             "version": "2.0.0",
+            "request_id": getattr(g, "request_id", ""),
+            "config": {
+                "port": GATEWAY_CONFIG["server"]["port"],
+                "rag_agent_url": RAG_AGENT_URL,
+                "rag_timeout": RAG_TIMEOUT,
+            },
+            "rag": rag_health,
         }
     )
 
@@ -1367,6 +1402,17 @@ def admin_model_usage():
     return jsonify({"success": True, "usage": deepcopy(mock_database["admin"]["model_usage"])})
 
 
+@app.route("/api/admin/routes", methods=["GET"])
+def admin_routes():
+    return jsonify(
+        {
+            "success": True,
+            "count": len(_route_registry()),
+            "routes": _route_registry(),
+        }
+    )
+
+
 @app.route("/api/admin/model-config", methods=["GET"])
 def admin_model_config():
     return jsonify({"success": True, "config": _admin_model_config_summary()})
@@ -1436,6 +1482,18 @@ def proxy_rag_chat():
         _record_model_usage("/api/gateway/rag/chat", prompt_text=body.get("query", ""), success=True)
         _record_activity("rag_chat", "管理员触发 RAG 对话", target="knowledge_base", details=body.get("query", "")[:120])
     return Response(resp.content, resp.status_code, content_type=resp.headers.get("Content-Type", "application/json"))
+
+
+@app.route("/api/chat", methods=["POST"])
+def proxy_chat_alias():
+    """Backward-compatible alias for clients that still call /api/chat."""
+    return proxy_rag_chat()
+
+
+@app.route("/api/agent/chat", methods=["POST"])
+def proxy_agent_chat_alias():
+    """Route governance alias for older clients that still call /api/agent/chat."""
+    return proxy_rag_chat()
 
 
 @app.route("/api/gateway/rag/ingest/sync", methods=["POST"])

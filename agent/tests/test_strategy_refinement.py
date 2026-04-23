@@ -95,6 +95,54 @@ def test_student_chat_route_returns_strategy_metadata() -> None:
     assert payload["strategy"]["role"] == "student"
 
 
+def test_legacy_api_chat_alias_still_works() -> None:
+    client = api_gateway.app.test_client()
+    response = client.post(
+        "/api/chat",
+        json={
+            "message": "test",
+            "query": "test",
+            "n": 2,
+            "use_hybrid": False,
+        },
+    )
+    assert response.status_code in (200, 502)
+
+
+def test_agent_chat_alias_still_works() -> None:
+    client = api_gateway.app.test_client()
+    response = client.post(
+        "/api/agent/chat",
+        json={
+            "message": "test",
+            "query": "test",
+            "n": 2,
+            "use_hybrid": False,
+        },
+    )
+    assert response.status_code in (200, 502)
+
+
+def test_admin_routes_registry_available() -> None:
+    client = api_gateway.app.test_client()
+    response = client.get("/api/admin/routes")
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["success"] is True
+    assert payload["count"] >= 1
+    assert any(route["path"] == "/api/chat" for route in payload["routes"])
+
+
+def test_health_endpoint_includes_request_id() -> None:
+    client = api_gateway.app.test_client()
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    assert response.headers.get("X-Request-ID")
+    payload = response.get_json()
+    assert payload["success"] is True
+    assert "config" in payload
+
+
 def test_admin_model_config_route_reads_and_updates(monkeypatch) -> None:
     monkeypatch.setattr(
         api_gateway.requests,

@@ -134,3 +134,23 @@ docker compose restart
 - 做 RAG 检索和问答
 
 这意味着服务器更新完成后，不需要再额外打开别的网页后台，统一在这个管理员后台里操作即可。
+
+## 8. 新增的工程化改进
+
+当前版本还新增了几项针对服务器部署问题的工程化改进：
+
+- 网关集中配置文件：
+  - `agent/config/gateway.json`
+- 路由治理：
+  - 保留 `/api/chat` 兼容别名
+  - 保留 `/api/agent/chat` 兼容别名
+  - 新增 `/api/admin/routes` 可查看路由清单
+- 健康检查增强：
+  - `/api/health` 返回更完整的网关状态、RAG 状态和运行配置摘要
+  - 响应头带 `X-Request-ID` 与响应时间信息，便于日志追踪
+
+如果服务器侧需要排查调用问题，建议优先查看：
+
+- `/api/health`
+- `/api/admin/routes`
+- `/api/admin/overview`
