@@ -42,11 +42,11 @@ WarmStudy is positioned as an adolescent psychological care AI assistant platfor
 - large model as the intelligence core
 - RAG for domain knowledge retrieval enhancement
 - tool calling and workflow orchestration
-- WeChat Mini Program frontend and Python backend service
+- App frontend built with WeChat Mini Program technology and Python backend service
 
 ## 9. Main Technical Components
 
-- frontend: WeChat Mini Program
+- frontend: App frontend built with WeChat Mini Program technology
 - backend: Flask-based service architecture
 - agent framework: LangChain-related components
 - vector database: ChromaDB

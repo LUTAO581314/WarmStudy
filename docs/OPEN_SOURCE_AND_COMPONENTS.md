@@ -24,7 +24,7 @@ The team uses open source frameworks, libraries, and official SDKs for backend s
 14. PyMuPDF
 15. Pillow
 16. Pytesseract
-17. WeChat Mini Program Native Framework
+17. Native frontend framework based on WeChat Mini Program technology
 
 ## 3. Whether Open Source Component Source Code Was Modified
 
@@ -58,7 +58,7 @@ Yes.
 
 - project topic selection and problem definition
 - system architecture design
-- student-side and parent-side Mini Program pages
+- student-side and parent-side App frontend pages built with WeChat Mini Program technology
 - backend API composition and service integration
 - agent interaction flow for psychological support
 - RAG retrieval integration

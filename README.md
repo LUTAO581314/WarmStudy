@@ -2,9 +2,13 @@
 
 WarmStudy（暖学帮）是一个面向青少年心理关怀场景的教育智能体原型系统，对应 2026 年广东省大学生计算机设计大赛教育方向“助育”场景。
 
+说明：
+本项目的前端应用形态建议统一表述为“基于微信小程序技术实现的 App 应用前端”。
+`WarnStudty/` 是该 App 的前端工程载体，不建议再简单理解为普通微信小程序演示项目。
+
 当前版本已经收敛为：
 
-- 一个微信小程序前端：`WarnStudty/`
+- 一个基于微信小程序技术实现的 App 前端工程：`WarnStudty/`
 - 一套后端服务：`agent/`
 - 一个统一管理员后台入口：`http://localhost:8000/`
 - 一条统一模型路径：`Qwen / DashScope`
@@ -77,7 +81,7 @@ LOG_LEVEL=INFO
 
 ```text
 WarmStudy-main/
-├─ WarnStudty/          # 微信小程序前端
+├─ WarnStudty/          # 基于微信小程序技术实现的 App 前端工程
 ├─ agent/               # API Gateway、Agent、RAG、管理员后台
 ├─ docs/                # 正式说明文档
 ├─ submission/          # 比赛提交材料

@@ -28,7 +28,7 @@
 推荐生产结构：
 
 ```text
-Browser / Mini Program
+Browser / App Frontend
         |
    Nginx / Caddy
         |

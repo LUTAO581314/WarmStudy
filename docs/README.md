@@ -40,3 +40,4 @@
 
 - [AGENT_REFINEMENT_UPDATE_2026-04-22.md](/C:/Users/34206/OneDrive/Desktop/WarmStudy-main/docs/AGENT_REFINEMENT_UPDATE_2026-04-22.md)
 - [AGENT_AND_PRODUCT_ADVANTAGES.md](/C:/Users/34206/OneDrive/Desktop/WarmStudy-main/docs/AGENT_AND_PRODUCT_ADVANTAGES.md)
+- [SERVER_UPDATE_DEPLOYMENT.md](/C:/Users/34206/OneDrive/Desktop/WarmStudy-main/docs/SERVER_UPDATE_DEPLOYMENT.md)
