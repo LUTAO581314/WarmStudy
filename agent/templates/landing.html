@@ -558,6 +558,68 @@
       gap: 18px;
     }
 
+    .docs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .doc-card {
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      border: 1px solid rgba(12, 61, 98, 0.08);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 100%;
+    }
+
+    .doc-card .doc-tag {
+      display: inline-flex;
+      width: fit-content;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(34,103,218,0.08);
+      color: var(--navy);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .doc-card h3 {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.35;
+    }
+
+    .doc-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 14px;
+    }
+
+    .doc-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .doc-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      background: rgba(14,147,139,0.1);
+      color: var(--teal);
+    }
+
     .final-panel {
       padding: 28px;
       background:
@@ -951,6 +1013,77 @@
       </div>
     </section>
 
+    <section class="block" id="docs">
+      <div class="shell">
+        <div class="section-head">
+          <div>
+            <div class="section-note">Docs & Repo</div>
+            <h2>GitHub 仓库与文档入口单独展示，方便评委快速查阅</h2>
+            <p>官网保留为比赛展示页，不承担后台实时看板职责。为了帮助评委继续深入了解方案，我们把 GitHub 仓库和 `docs` 中的关键说明文档单独列出，便于查看系统说明、部署方式、模型选择与比赛材料。</p>
+          </div>
+        </div>
+        <div class="docs-grid">
+          <article class="doc-card">
+            <span class="doc-tag">GitHub</span>
+            <h3>开源仓库主页</h3>
+            <p>查看完整源代码、APK Release、项目迭代记录，以及前端 App、网关、RAG 服务与后台控制台的整体工程结构。</p>
+            <div class="doc-actions">
+              <a class="doc-link" href="https://github.com/LUTAO581314/WarmStudy" target="_blank" rel="noreferrer">访问 GitHub 仓库</a>
+              <a class="doc-link" href="https://github.com/LUTAO581314/WarmStudy/releases" target="_blank" rel="noreferrer">查看 Release</a>
+            </div>
+          </article>
+
+          <article class="doc-card">
+            <span class="doc-tag">Docs</span>
+            <h3>文档总索引</h3>
+            <p>如果希望按目录查看完整文档结构，可以从 `docs/README.md` 进入，快速浏览比赛材料、部署文档、模型说明与产品优势介绍。</p>
+            <div class="doc-actions">
+              <a class="doc-link" href="https://github.com/LUTAO581314/WarmStudy/blob/main/docs/README.md" target="_blank" rel="noreferrer">打开 docs/README.md</a>
+            </div>
+          </article>
+
+          <article class="doc-card">
+            <span class="doc-tag">Project</span>
+            <h3>项目总体说明</h3>
+            <p>适合第一次了解 WarmStudy 的评委，重点说明场景背景、系统边界、核心能力与比赛映射关系。</p>
+            <div class="doc-actions">
+              <a class="doc-link" href="https://github.com/LUTAO581314/WarmStudy/blob/main/docs/COMPETITION_PROJECT_DESCRIPTION.md" target="_blank" rel="noreferrer">查看项目总说明</a>
+              <a class="doc-link" href="https://github.com/LUTAO581314/WarmStudy/blob/main/README.md" target="_blank" rel="noreferrer">查看仓库 README</a>
+            </div>
+          </article>
+
+          <article class="doc-card">
+            <span class="doc-tag">Advantage</span>
+            <h3>产品优势与智能体亮点</h3>
+            <p>集中展示双端角色差异、状态驱动策略、RAG 融合方式与为什么它更适合教育心理支持场景。</p>
+            <div class="doc-actions">
+              <a class="doc-link" href="https://github.com/LUTAO581314/WarmStudy/blob/main/docs/AGENT_AND_PRODUCT_ADVANTAGES.md" target="_blank" rel="noreferrer">查看优势文档</a>
+            </div>
+          </article>
+
+          <article class="doc-card">
+            <span class="doc-tag">Deploy</span>
+            <h3>部署与运行手册</h3>
+            <p>用于说明服务器部署、服务更新、系统运行入口与运维注意事项，适合答辩时说明作品可落地性。</p>
+            <div class="doc-actions">
+              <a class="doc-link" href="https://github.com/LUTAO581314/WarmStudy/blob/main/docs/DEPLOYMENT_RUNBOOK.md" target="_blank" rel="noreferrer">查看部署手册</a>
+              <a class="doc-link" href="https://github.com/LUTAO581314/WarmStudy/blob/main/docs/SERVER_UPDATE_DEPLOYMENT.md" target="_blank" rel="noreferrer">查看服务器更新说明</a>
+            </div>
+          </article>
+
+          <article class="doc-card">
+            <span class="doc-tag">Model</span>
+            <h3>模型来源与选择说明</h3>
+            <p>说明当前使用的 Qwen / DashScope 路线、Embedding 选择依据，以及模型部署策略，方便解释技术路线的合理性。</p>
+            <div class="doc-actions">
+              <a class="doc-link" href="https://github.com/LUTAO581314/WarmStudy/blob/main/docs/MODEL_SELECTION.md" target="_blank" rel="noreferrer">查看模型选择说明</a>
+              <a class="doc-link" href="https://github.com/LUTAO581314/WarmStudy/blob/main/docs/MODEL_SOURCE_AND_DEPLOYMENT_NOTE.md" target="_blank" rel="noreferrer">查看模型来源说明</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
     <section class="block">
       <div class="shell">
         <div class="final-panel">
@@ -965,6 +1098,8 @@
           <div class="final-actions">
             <a class="cta primary" href="/console">进入后台控制台</a>
             <a class="cta secondary" href="/api/gateway/status">查看网关状态</a>
+            <a class="cta secondary" href="https://github.com/LUTAO581314/WarmStudy" target="_blank" rel="noreferrer">查看 GitHub 仓库</a>
+            <a class="cta secondary" href="#docs">查看项目文档</a>
           </div>
         </div>
       </div>
