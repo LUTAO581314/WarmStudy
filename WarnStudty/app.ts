@@ -4,7 +4,7 @@ App<IAppOption>({
     userId: '',
     userRole: '',
     childId: '',
-    apiBase: 'http://localhost:8000',
+    apiBase: 'https://wsapi.supermoxi.top',
   },
   onLaunch() {
     // 初始化：检查登录状态

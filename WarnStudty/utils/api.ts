@@ -8,7 +8,7 @@ const getApiBase = (): string => {
   if (app && app.globalData && app.globalData.apiBase) {
     return app.globalData.apiBase;
   }
-  return "http://localhost:8000";
+  return "https://wsapi.supermoxi.top";
 };
 
 // 请求封装

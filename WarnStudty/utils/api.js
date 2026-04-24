@@ -1,11 +1,11 @@
 /**
  * WarmStudy - Unified API Request Tool
- * Backend: http://localhost:8000
+ * Backend: https://wsapi.supermoxi.top
  */
 
 function getApiBase() {
   const app = typeof getApp === 'function' ? getApp() : null;
-  return (app && app.globalData && app.globalData.apiBase) || 'http://localhost:8000';
+  return (app && app.globalData && app.globalData.apiBase) || 'https://wsapi.supermoxi.top';
 }
 
 // 请求封装

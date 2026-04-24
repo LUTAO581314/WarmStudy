@@ -1543,6 +1543,11 @@ def proxy_psychology_categories():
 
 @app.route("/", methods=["GET"])
 def index():
+    return render_template("landing.html")
+
+
+@app.route("/console", methods=["GET"])
+def console():
     return render_template("gateway_dashboard.html", rag_agent_url=RAG_AGENT_URL)
 
 

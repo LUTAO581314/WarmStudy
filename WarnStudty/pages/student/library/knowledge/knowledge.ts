@@ -11,7 +11,7 @@ interface KnowledgeItem {
 
 const getApiBase = (): string => {
   const app = getApp<IAppOption>();
-  return app?.globalData?.apiBase || "http://localhost:8000";
+  return app?.globalData?.apiBase || "https://wsapi.supermoxi.top";
 };
 
 Page({
