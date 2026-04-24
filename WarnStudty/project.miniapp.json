@@ -1,7 +1,7 @@
 {
   "miniVersion": "v2",
-  "name": "%name%",
-  "version": "0.0.1",
+  "name": "暖学帮",
+  "version": "0.0.9",
   "versionCode": 100,
   "i18nFilePath": "i18n",
   "mini-ohos": {
@@ -12,26 +12,31 @@
     "sdkVersion": "1.6.24",
     "toolkitVersion": "0.11.0",
     "useExtendedSdk": {
-      "media": false,
-      "bluetooth": false,
-      "network": false,
-      "scanner": false,
-      "xweb": false
+      "media": true,
+      "bluetooth": true,
+      "network": true,
+      "scanner": true,
+      "xweb": true,
+      "xwebEmbed": true
     },
     "icons": {
       "hdpi": "",
-      "xhdpi": "",
+      "xhdpi": "miniapp/android/nativeResources/assets/branding/app-icon.png",
       "xxhdpi": "",
       "xxxhdpi": ""
     },
     "splashscreen": {
       "hdpi": "",
       "xhdpi": "",
-      "xxhdpi": ""
+      "xxhdpi": "miniapp/android/nativeResources/assets/branding/splash.jpg"
     },
-    "enableVConsole": "open",
+    "enableVConsole": "close",
     "privacy": {
-      "enable": true
+      "enable": true,
+      "enableViewOnly": false
+    },
+    "abi": {
+      "arm64-v8a": true
     }
   },
   "mini-ios": {
@@ -39,7 +44,7 @@
     "toolkitVersion": "0.0.9",
     "useExtendedSdk": {
       "WeAppOpenFuns": true,
-      "WeAppNetwork": false,
+      "WeAppNetwork": true,
       "WeAppBluetooth": false,
       "WeAppMedia": false,
       "WeAppLBS": false,
