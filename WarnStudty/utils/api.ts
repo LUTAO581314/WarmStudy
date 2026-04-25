@@ -13,6 +13,29 @@ const getApiBase = (): string => {
   return DEFAULT_API_BASE;
 };
 
+function mergeObjects(base: Record<string, any>, extra?: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = {};
+  let key: string;
+  for (key in base) {
+    if (Object.prototype.hasOwnProperty.call(base, key)) {
+      result[key] = base[key];
+    }
+  }
+  if (extra) {
+    for (key in extra) {
+      if (Object.prototype.hasOwnProperty.call(extra, key)) {
+        result[key] = extra[key];
+      }
+    }
+  }
+  return result;
+}
+
+function pad2(value: number): string {
+  const text = String(value);
+  return text.length >= 2 ? text : "0" + text;
+}
+
 // 请求封装
 function request<T = any>(
   url: string,
@@ -29,8 +52,8 @@ function request<T = any>(
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data as T);
         } else {
-          const body = res.data as { error?: string; message?: string } | undefined;
-          reject(new Error(body?.error || body?.message || `请求失败: ${res.statusCode}`));
+          const body = (res.data || {}) as { error?: string; message?: string };
+          reject(new Error(body.error || body.message || ("请求失败: " + res.statusCode)));
         }
       },
       fail: (err) => reject(err),
@@ -166,7 +189,7 @@ export function updateStudentProfile(
   strategy?: Record<string, any>;
   status?: any;
 }> {
-  return request("/api/student/profile", { user_id: userId, ...profile });
+  return request("/api/student/profile", mergeObjects({ user_id: userId }, profile));
 }
 
 /**
@@ -261,7 +284,7 @@ export function submitCheckin(
     note?: string;
   },
 ): Promise<{ success: boolean; message: string }> {
-  return request("/api/student/checkin", { user_id: userId, ...data });
+  return request("/api/student/checkin", mergeObjects({ user_id: userId }, data));
 }
 
 /**
@@ -460,13 +483,13 @@ export function bindChild(parentId: string, childId: string): Promise<any> {
 /** 获取当前时间字符串 HH:MM */
 export function getCurrentTime(): string {
   const now = new Date();
-  return `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
+  return pad2(now.getHours()) + ":" + pad2(now.getMinutes());
 }
 
 /** 获取当前日期 YYYY-MM-DD */
 export function getCurrentDate(): string {
   const now = new Date();
-  return `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}-${now.getDate().toString().padStart(2, "0")}`;
+  return now.getFullYear() + "-" + pad2(now.getMonth() + 1) + "-" + pad2(now.getDate());
 }
 
 /** 获取本地存储的 userId */
