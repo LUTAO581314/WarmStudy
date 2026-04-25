@@ -3,9 +3,11 @@
  * Backend: https://wsapi.supermoxi.top
  */
 
+const DEFAULT_API_BASE = 'https://wsapi.supermoxi.top';
+
 function getApiBase() {
   const app = typeof getApp === 'function' ? getApp() : null;
-  return (app && app.globalData && app.globalData.apiBase) || 'https://wsapi.supermoxi.top';
+  return (app && app.globalData && app.globalData.apiBase) || DEFAULT_API_BASE;
 }
 
 // 请求封装
@@ -22,6 +24,7 @@ function request(url, data, method = 'POST') {
       data,
       method,
       header,
+      timeout: 15000,
       success: (res) => {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data);
@@ -29,7 +32,10 @@ function request(url, data, method = 'POST') {
           reject(new Error(`请求失败: ${res.statusCode}`));
         }
       },
-      fail: (err) => reject(err),
+      fail: (err) => {
+        const errMsg = err && typeof err.errMsg === 'string' && err.errMsg ? err.errMsg : '网络请求失败';
+        reject(new Error(`${method} ${url} -> ${errMsg}`));
+      },
     });
   });
 }

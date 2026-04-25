@@ -423,6 +423,9 @@ Page({
 
     try {
       const res = await parentChat(userId, text, { sessionId, childId });
+      if (!res.success || !res.response || res.response.startsWith("Error")) {
+        throw new Error(res.error || res.response || "大模型服务暂时不可用");
+      }
       if (this.data.stopRequested) {
         this.setData({ stopRequested: false });
         return;
@@ -432,12 +435,16 @@ Page({
         res.response || "抱歉，AI助手现在比较忙，请稍后再试 🙏",
         emotion,
       );
-    } catch (_err) {
+    } catch (err) {
       if (this.data.stopRequested) {
         this.setData({ stopRequested: false });
         return;
       }
-      this.addAIMessage(this.fallbackResponse(text), 2);
+      const message = err instanceof Error ? err.message : "网络请求失败";
+      this.addAIMessage(
+        `家长助手暂时无法连接到大模型服务，请稍后再试。${message ? `\n\n错误信息：${message}` : ""}`,
+        2,
+      );
     }
   },
 

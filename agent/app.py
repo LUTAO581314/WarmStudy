@@ -732,23 +732,72 @@ def api_parent_chat():
                 "type": "crisis_intervention"
             })
 
-        # 正常对话 - 检索家长相关心理知识
+        # 正常对话 - 检索家长相关心理知识，并交给 Qwen 生成家长端回复
         knowledge_result = pt.search_psychology_knowledge(
             query=message,
             user_type="parent",
             n_results=3
         )
 
-        empathic_response = pt.generate_empathic_response(
-            user_input=message,
-            emotion=emotion_result.get("emotion"),
-            context={"knowledge": knowledge_result}
-        )
+        knowledge_text = ""
+        if knowledge_result and knowledge_result.get("results"):
+            for item in knowledge_result["results"]:
+                title = item.get("title", "")
+                content = item.get("content", "")
+                knowledge_text += f"- {title}: {content}\n" if title else f"- {content}\n"
+
+        parent_profile = data.get("profile") if isinstance(data.get("profile"), dict) else {}
+        child_profile = data.get("child_profile") if isinstance(data.get("child_profile"), dict) else {}
+        child_status = data.get("child_status") if isinstance(data.get("child_status"), dict) else {}
+        strategy = data.get("strategy") if isinstance(data.get("strategy"), dict) else {}
+        system_context = build_parent_system_context(parent_profile, child_profile, strategy)
+
+        status_text = ""
+        if child_status:
+            status_text = f"\n孩子近期状态摘要：{child_status}\n"
+
+        llm_prompt = f"""{system_context}
+
+家长的问题：{message}
+
+检测到的家长情绪：{emotion_result.get("emotion", "neutral")}
+{status_text}
+相关心理知识：
+{knowledge_text or "暂无匹配知识片段。"}
+
+请直接回复家长，要求：
+1. 先理解家长的担心，不责备家长或孩子。
+2. 给出 3 条以内可执行建议，包含可直接使用的沟通话术。
+3. 不做医疗诊断，不夸大风险；如出现明显危机信号，提醒寻求老师或专业人员帮助。
+4. 控制在 150-260 字。
+
+回复："""
+
+        llm_response = generate_chat_response(llm_prompt)
+        if llm_response.startswith("Error"):
+            fallback_response = pt.generate_empathic_response(
+                user_input=message,
+                emotion=emotion_result.get("emotion"),
+                context={"knowledge": knowledge_result}
+            )
+            return jsonify({
+                "success": False,
+                "error": llm_response,
+                "response": fallback_response,
+                "ai_name": "暖暖",
+                "emotion": emotion_result.get("emotion", "neutral"),
+                "crisis_level": crisis_level,
+                "type": "model_error",
+                "knowledge_count": len((knowledge_result or {}).get("results", [])),
+            }), 502
 
         return jsonify({
             "success": True,
-            "response": empathic_response,
+            "response": llm_response,
             "ai_name": "暖暖",
+            "emotion": emotion_result.get("emotion", "neutral"),
+            "crisis_level": crisis_level,
+            "knowledge_count": len((knowledge_result or {}).get("results", [])),
             "type": "normal_support"
         })
 
