@@ -87,8 +87,8 @@ Page({
           this.setData({ countdown: newCountdown });
         }, 1000);
       })
-      .catch(() => {
-        wx.showToast({ title: "验证码发送失败", icon: "none" });
+      .catch((err: any) => {
+        wx.showToast({ title: getReadableError(err), icon: "none", duration: 2500 });
       });
   },
 
@@ -115,8 +115,6 @@ Page({
   // 手机号登录
   onPhoneLogin() {
     const { phone, code, selectedRole, agreed, redirecting } = this.data;
-
-    console.log("onPhoneLogin called", { phone, code, selectedRole, agreed, redirecting });
 
     if (redirecting) {
       return;
@@ -150,9 +148,19 @@ Page({
           wx.showToast({ title: result.message || "登录失败", icon: "none" });
         }
       })
-      .catch((err) => {
-        console.warn("手机号登录接口不可用，回退到本地演示登录", err);
-        this.mockLogin(selectedRole);
+      .catch((err: any) => {
+        if (isLocalMockEnvironment()) {
+          console.warn("本地开发环境登录失败，回退到演示账号", err);
+          this.mockLogin(selectedRole);
+          return;
+        }
+
+        wx.showModal({
+          title: "连接服务器失败",
+          content: getReadableError(err),
+          showCancel: false,
+          confirmText: "知道了",
+        });
       });
   },
 
@@ -232,10 +240,7 @@ Page({
 
   // 跳转到首页
   navigateToHome(role: string) {
-    console.log("navigateToHome called", role);
-
     if (this.data.redirecting) {
-      console.log("已有跳转进行中，忽略重复跳转", role);
       return;
     }
 
@@ -249,9 +254,6 @@ Page({
     if (role === "student") {
       wx.switchTab({
         url: "/pages/student/chat/chat",
-        success: () => {
-          console.log("学生端跳转成功");
-        },
         fail: (err) => {
           console.error("学生端跳转失败", err);
           wx.showToast({ title: "跳转失败", icon: "none" });
@@ -262,9 +264,6 @@ Page({
       // 家长端使用 navigateTo
       wx.navigateTo({
         url: "/pages/parent/home/home",
-        success: () => {
-          console.log("家长端跳转成功");
-        },
         fail: (err) => {
           console.error("家长端跳转失败", err);
           wx.showToast({ title: "跳转失败", icon: "none" });

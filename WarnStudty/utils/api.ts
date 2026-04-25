@@ -3,12 +3,14 @@
  * API地址在 app.ts 的 globalData.apiBase 中配置
  */
 
+const DEFAULT_API_BASE = "https://wsapi.supermoxi.top";
+
 const getApiBase = (): string => {
   const app = getApp<IAppOption>();
   if (app && app.globalData && app.globalData.apiBase) {
     return app.globalData.apiBase;
   }
-  return "https://wsapi.supermoxi.top";
+  return DEFAULT_API_BASE;
 };
 
 // 请求封装
@@ -127,6 +129,8 @@ export function studentChat(
   type?: string;
   strategy?: Record<string, any>;
   session_id?: string;
+  knowledge_count?: number;
+  knowledge_sources?: { title?: string; category?: string }[];
 }> {
   return request<{
     success: boolean;
@@ -137,6 +141,8 @@ export function studentChat(
     type?: string;
     strategy?: Record<string, any>;
     session_id?: string;
+    knowledge_count?: number;
+    knowledge_sources?: { title?: string; category?: string }[];
   }>("/api/student/chat", {
     user_id: userId,
     message,
@@ -307,8 +313,24 @@ export function parentChat(
   userId: string,
   message: string,
   options?: { sessionId?: string; childId?: string },
-): Promise<{ response: string; strategy?: Record<string, any>; session_id?: string }> {
-  return request<{ success: boolean; response: string }>("/api/parent/chat", {
+): Promise<{
+  success: boolean;
+  response: string;
+  error?: string;
+  strategy?: Record<string, any>;
+  session_id?: string;
+  knowledge_count?: number;
+  knowledge_sources?: { title?: string; category?: string }[];
+}> {
+  return request<{
+    success: boolean;
+    response: string;
+    error?: string;
+    strategy?: Record<string, any>;
+    session_id?: string;
+    knowledge_count?: number;
+    knowledge_sources?: { title?: string; category?: string }[];
+  }>("/api/parent/chat", {
     user_id: userId,
     message,
     session_id: options && options.sessionId ? options.sessionId : undefined,
@@ -531,12 +553,16 @@ export function getChildPsychReports(
     date: string;
   }[];
 }> {
-  return request(`/api/parent/child/${childId}/psych_reports?limit=${limit}`);
+  return request(
+    `/api/parent/child/${childId}/psych_reports?limit=${limit}`,
+    undefined,
+    "GET",
+  );
 }
 
 /** 获取孩子最新心理状态 */
 export function getChildPsychStatus(childId: string): Promise<any> {
-  return request(`/api/parent/child/${childId}/psych/latest`);
+  return request(`/api/parent/child/${childId}/psych/latest`, undefined, "GET");
 }
 
 // ===== 家长预警 =====
@@ -615,5 +641,5 @@ export function getChildPsychReportDetail(reportId: string): Promise<{
     child_grade: string;
   };
 }> {
-  return request(`/api/parent/report/${reportId}`);
+  return request(`/api/parent/report/${reportId}`, undefined, "GET");
 }

@@ -15,8 +15,10 @@ interface IAppOption {
     apiBase: string;
   };
   onLaunch?: () => void;
+  hydrateApiBase?: () => void;
   checkLoginStatus?: () => void;
   setCurrentUser?: (userId: string, role: string) => void;
+  setApiBase?: (apiBase: string) => void;
   clearLoginStatus?: () => void;
 }
 
@@ -34,10 +36,36 @@ interface IPageConfig {
   [key: string]: any;
 }
 
+declare namespace wx {
+  interface RequestResponse {
+    statusCode: number;
+    data: any;
+    header?: Record<string, string>;
+  }
+
+  interface RequestOption {
+    url: string;
+    data?: any;
+    method?: string;
+    header?: Record<string, string>;
+    timeout?: number;
+    success?: (res: RequestResponse) => void;
+    fail?: (err: any) => void;
+  }
+
+  interface NavigateOption {
+    url: string;
+    success?: () => void;
+    fail?: (err: any) => void;
+    complete?: () => void;
+  }
+}
+
 declare const wx: {
   request(options: wx.RequestOption): void;
   getStorageSync(key: string): any;
   setStorageSync(key: string, value: any): void;
+  removeStorageSync(key: string): void;
   showToast(options: { title: string; icon?: string; duration?: number }): void;
   showLoading(options: { title: string; mask?: boolean }): void;
   hideLoading(): void;

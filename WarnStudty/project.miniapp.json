@@ -1,4 +1,4 @@
-﻿{
+{
   "miniVersion": "v2",
   "name": "WarmStudy",
   "version": "0.0.9",
@@ -71,4 +71,3 @@
     "enableOpenUrlNavigate": true
   }
 }
-
