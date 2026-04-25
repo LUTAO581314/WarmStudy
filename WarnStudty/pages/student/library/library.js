@@ -1,4 +1,4 @@
-const API_BASE = 'https://wsapi.supermoxi.top';
+var API_BASE = 'https://wsapi.supermoxi.top';
 
 function request(url, data, method) {
   method = method || 'POST';

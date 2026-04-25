@@ -1,228 +1,200 @@
 /**
  * WarmStudy - Unified API Request Tool
  * Backend: https://wsapi.supermoxi.top
+ *
+ * Keep this file ES5-compatible for miniapp upload validators.
  */
 
-const DEFAULT_API_BASE = 'https://wsapi.supermoxi.top';
+var DEFAULT_API_BASE = 'https://wsapi.supermoxi.top';
 
 function getApiBase() {
-  const app = typeof getApp === 'function' ? getApp() : null;
+  var app = typeof getApp === 'function' ? getApp() : null;
   return (app && app.globalData && app.globalData.apiBase) || DEFAULT_API_BASE;
 }
 
-// 请求封装
-function request(url, data, method = 'POST') {
-  return new Promise((resolve, reject) => {
+function mergeObjects(base, extra) {
+  var result = {};
+  var key;
+
+  base = base || {};
+  extra = extra || {};
+
+  for (key in base) {
+    if (Object.prototype.hasOwnProperty.call(base, key)) {
+      result[key] = base[key];
+    }
+  }
+
+  for (key in extra) {
+    if (Object.prototype.hasOwnProperty.call(extra, key)) {
+      result[key] = extra[key];
+    }
+  }
+
+  return result;
+}
+
+function pad2(value) {
+  value = String(value);
+  return value.length >= 2 ? value : '0' + value;
+}
+
+function request(url, data, method) {
+  method = method || 'POST';
+
+  return new Promise(function (resolve, reject) {
     wx.request({
-      url: `${getApiBase()}${url}`,
-      data,
-      method,
+      url: getApiBase() + url,
+      data: data,
+      method: method,
       header: { 'Content-Type': 'application/json' },
-      success: (res) => {
+      success: function (res) {
         if (res.statusCode >= 200 && res.statusCode < 300) {
           resolve(res.data);
         } else {
-          const body = res.data || {};
-          reject(new Error(body.error || body.message || `请求失败: ${res.statusCode}`));
+          var body = res.data || {};
+          reject(new Error(body.error || body.message || ('请求失败: ' + res.statusCode)));
         }
       },
-      fail: (err) => reject(err),
+      fail: function (err) {
+        reject(err);
+      }
     });
   });
 }
 
-// ===== 登录相关 =====
-
-/**
- * 手机号登录（支持同一手机号不同角色）
- */
 function loginByPhone(phone, code, role) {
-  return request('/api/auth/login/phone', { phone, code, role });
+  return request('/api/auth/login/phone', { phone: phone, code: code, role: role });
 }
 
-/**
- * 微信登录（支持同一手机号不同角色）
- */
 function loginByWechat(wxCode, role) {
-  return request('/api/auth/login/wechat', { wx_code: wxCode, role });
+  return request('/api/auth/login/wechat', { wx_code: wxCode, role: role });
 }
 
-/**
- * 发送验证码
- */
 function sendVerifyCode(phone) {
-  return request('/api/auth/send-code', { phone });
+  return request('/api/auth/send-code', { phone: phone });
 }
 
-// ===== 学生端 API =====
-
-/**
- * AI 心理师对话
- */
-function studentChat(userId, message, options = {}) {
+function studentChat(userId, message, options) {
+  options = options || {};
   return request('/api/student/chat', {
     user_id: userId,
-    message,
+    message: message,
     session_id: options.sessionId,
-    profile: options.profile,
+    profile: options.profile
   });
 }
 
 function updateStudentProfile(userId, profile) {
-  return request('/api/student/profile', { user_id: userId, ...profile });
+  return request('/api/student/profile', mergeObjects({ user_id: userId }, profile));
 }
 
-/**
- * 提交每日打卡
- */
 function submitCheckin(userId, data) {
-  return request('/api/student/checkin', { user_id: userId, ...data });
+  return request('/api/student/checkin', mergeObjects({ user_id: userId }, data));
 }
 
-/**
- * 提交心理测评
- */
-function submitPsychTest(userId, answers, testType = 'weekly') {
+function submitPsychTest(userId, answers, testType) {
+  testType = testType || 'weekly';
   return request('/api/student/psych/test', {
     user_id: userId,
-    answers,
-    test_type: testType,
+    answers: answers,
+    test_type: testType
   });
 }
 
-/**
- * 获取心理状态
- */
 function getPsychStatus(userId) {
-  return request(`/api/student/psych/status/${userId}`, undefined, 'GET');
+  return request('/api/student/psych/status/' + userId, undefined, 'GET');
 }
 
-/**
- * 获取历史打卡
- */
-function getCheckinHistory(userId, days = 7) {
-  return request(`/api/student/checkin/${userId}?days=${days}`, undefined, 'GET');
+function getCheckinHistory(userId, days) {
+  days = days || 7;
+  return request('/api/student/checkin/' + userId + '?days=' + days, undefined, 'GET');
 }
 
-// ===== 家长端 API =====
-
-/**
- * AI 家庭教育助手对话
- */
-function parentChat(userId, message, options = {}) {
+function parentChat(userId, message, options) {
+  options = options || {};
   return request('/api/parent/chat', {
     user_id: userId,
-    message,
+    message: message,
     session_id: options.sessionId,
-    child_id: options.childId,
+    child_id: options.childId
   });
 }
 
-/**
- * 获取孩子综合状态
- */
 function getChildStatus(childId) {
-  return request(`/api/parent/child/${childId}/status`, undefined, 'GET');
+  return request('/api/parent/child/' + childId + '/status', undefined, 'GET');
 }
 
-/**
- * 获取孩子打卡记录
- */
-function getChildCheckins(childId, days = 7) {
-  return request(`/api/parent/child/${childId}/checkins?days=${days}`, undefined, 'GET');
+function getChildCheckins(childId, days) {
+  days = days || 7;
+  return request('/api/parent/child/' + childId + '/checkins?days=' + days, undefined, 'GET');
 }
 
-/**
- * 获取 AI 每日建议
- */
 function getDailyAdvice(childId) {
-  return request(`/api/parent/child/${childId}/ai_advice`, undefined, 'GET');
+  return request('/api/parent/child/' + childId + '/ai_advice', undefined, 'GET');
 }
 
 function getChildComprehensiveReport(childId) {
-  return request(`/api/parent/child/${childId}/summary_report`, undefined, 'GET');
+  return request('/api/parent/child/' + childId + '/summary_report', undefined, 'GET');
 }
 
-/**
- * 录入孩子成绩
- */
 function submitGrade(userId, subject, score, examDate) {
   return request('/api/parent/child/grade', {
     user_id: userId,
-    subject,
-    score,
-    exam_date: examDate,
+    subject: subject,
+    score: score,
+    exam_date: examDate
   });
 }
 
-/**
- * 家长手机号登录
- */
 function parentLogin(phone) {
-  return request('/api/parent/login', { phone });
+  return request('/api/parent/login', { phone: phone });
 }
 
-/**
- * 批量获取孩子档案（家长端展示用）
- */
 function getChildrenProfiles(childIds) {
   return request('/api/parent/children/profiles', { child_ids: childIds.join(',') });
 }
 
-/**
- * 获取家长二维码内容
- */
 function getParentQRToken(parentId) {
   return request('/api/parent/qr_token', { parent_id: parentId });
 }
 
-/**
- * 绑定孩子（家长主动添加）
- */
 function bindChild(parentId, childId) {
   return request('/api/parent/child/bind', { parent_id: parentId, child_id: childId });
 }
 
-// ===== 工具函数 =====
-
-/** 获取当前时间字符串 HH:MM */
 function getCurrentTime() {
-  const now = new Date();
-  return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+  var now = new Date();
+  return pad2(now.getHours()) + ':' + pad2(now.getMinutes());
 }
 
-/** 获取当前日期 YYYY-MM-DD */
 function getCurrentDate() {
-  const now = new Date();
-  return `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
+  var now = new Date();
+  return now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate());
 }
 
-/** 获取本地存储的 userId */
-function getUserId(role = 'student') {
-  const key = role === 'student' ? 'student_user_id' : 'parent_user_id';
+function getUserId(role) {
+  role = role || 'student';
+  var key = role === 'student' ? 'student_user_id' : 'parent_user_id';
   if (role === 'student') {
     return ensureStudentId();
   }
   return wx.getStorageSync(key) || wx.getStorageSync('user_id') || '';
 }
 
-/** 获取当前登录用户的ID */
 function getCurrentUserId() {
   return wx.getStorageSync('user_id') || '';
 }
 
-/** 获取当前用户角色 */
 function getCurrentRole() {
   return wx.getStorageSync('user_role') || '';
 }
 
-/** 获取本地存储的家长 ID */
 function getParentId() {
-  const account = wx.getStorageSync('parent_account') || {};
+  var account = wx.getStorageSync('parent_account') || {};
   return wx.getStorageSync('parent_user_id') || account.parent_id || account.id || wx.getStorageSync('user_id') || '';
 }
 
-/** 获取绑定的孩子 ID */
 function getChildId() {
   return wx.getStorageSync('bound_child_id') || '';
 }
@@ -232,16 +204,17 @@ function isValidStudentId(childId) {
 }
 
 function ensureStudentId() {
-  const existing =
+  var existing =
     wx.getStorageSync('student_user_id') ||
     (wx.getStorageSync('user_role') === 'student' ? wx.getStorageSync('user_id') : '');
+
   if (isValidStudentId(existing)) {
     wx.setStorageSync('student_user_id', existing);
     wx.setStorageSync('student_id', existing);
     return existing;
   }
 
-  const generated = String(Math.floor(100000000 + Math.random() * 900000000));
+  var generated = String(Math.floor(100000000 + Math.random() * 900000000));
   wx.setStorageSync('student_user_id', generated);
   wx.setStorageSync('student_id', generated);
   if (!wx.getStorageSync('user_id')) {
@@ -251,84 +224,75 @@ function ensureStudentId() {
   return generated;
 }
 
-// ===== 扫码绑定 =====
-
-/**
- * 用扫码得到的 token 绑定家长
- */
 function bindParentByToken(token, childId) {
-  return request('/api/child/bind', { token, child_id: childId });
+  return request('/api/child/bind', { token: token, child_id: childId });
 }
 
-// ===== 测评报告 =====
-
-/** 获取孩子测评报告列表 */
-function getChildPsychReports(childId, limit = 5) {
-  return request(`/api/parent/child/${childId}/psych_reports?limit=${limit}`, undefined, 'GET');
+function getChildPsychReports(childId, limit) {
+  limit = limit || 5;
+  return request('/api/parent/child/' + childId + '/psych_reports?limit=' + limit, undefined, 'GET');
 }
 
-/** 获取孩子最新心理状态 */
 function getChildPsychStatus(childId) {
-  return request(`/api/parent/child/${childId}/psych/latest`, undefined, 'GET');
+  return request('/api/parent/child/' + childId + '/psych/latest', undefined, 'GET');
 }
 
-// ===== 家长预警 =====
-
-/** 获取预警列表 */
-function getParentAlerts(parentId, limit = 20, offset = 0) {
-  return request(`/api/parent/alerts?parent_id=${parentId}&limit=${limit}&offset=${offset}`, undefined, 'GET');
+function getParentAlerts(parentId, limit, offset) {
+  limit = limit || 20;
+  offset = offset || 0;
+  return request(
+    '/api/parent/alerts?parent_id=' + parentId + '&limit=' + limit + '&offset=' + offset,
+    undefined,
+    'GET'
+  );
 }
 
-/** 标记单条已读 */
 function markAlertRead(alertId, parentId) {
-  return request(`/api/parent/alerts/${alertId}/read`, { parent_id: parentId });
+  return request('/api/parent/alerts/' + alertId + '/read', { parent_id: parentId });
 }
 
-/** 全部标为已读 */
 function markAllAlertsRead(parentId) {
   return request('/api/parent/alerts/read_all', { parent_id: parentId });
 }
 
-/** 获取测评报告详情（家长端） */
 function getChildPsychReportDetail(reportId) {
-  return request(`/api/parent/report/${reportId}`, undefined, 'GET');
+  return request('/api/parent/report/' + reportId, undefined, 'GET');
 }
 
-// 导出所有函数
 module.exports = {
-  loginByPhone,
-  loginByWechat,
-  sendVerifyCode,
-  studentChat,
-  updateStudentProfile,
-  submitCheckin,
-  submitPsychTest,
-  getPsychStatus,
-  getCheckinHistory,
-  parentChat,
-  getChildStatus,
-  getChildCheckins,
-  getDailyAdvice,
-  getChildComprehensiveReport,
-  submitGrade,
-  parentLogin,
-  getChildrenProfiles,
-  getParentQRToken,
-  bindChild,
-  getCurrentTime,
-  getCurrentDate,
-  getUserId,
-  getCurrentUserId,
-  getCurrentRole,
-  getParentId,
-  getChildId,
-  isValidStudentId,
-  ensureStudentId,
-  bindParentByToken,
-  getChildPsychReports,
-  getChildPsychStatus,
-  getParentAlerts,
-  markAlertRead,
-  markAllAlertsRead,
-  getChildPsychReportDetail,
+  loginByPhone: loginByPhone,
+  loginByWechat: loginByWechat,
+  sendVerifyCode: sendVerifyCode,
+  studentChat: studentChat,
+  updateStudentProfile: updateStudentProfile,
+  submitCheckin: submitCheckin,
+  submitPsychTest: submitPsychTest,
+  getPsychStatus: getPsychStatus,
+  getCheckinHistory: getCheckinHistory,
+  parentChat: parentChat,
+  getChildStatus: getChildStatus,
+  getChildCheckins: getChildCheckins,
+  getDailyAdvice: getDailyAdvice,
+  getChildComprehensiveReport: getChildComprehensiveReport,
+  submitGrade: submitGrade,
+  parentLogin: parentLogin,
+  getChildrenProfiles: getChildrenProfiles,
+  getParentQRToken: getParentQRToken,
+  bindChild: bindChild,
+  getCurrentTime: getCurrentTime,
+  getCurrentDate: getCurrentDate,
+  getUserId: getUserId,
+  getCurrentUserId: getCurrentUserId,
+  getCurrentRole: getCurrentRole,
+  getParentId: getParentId,
+  getChildId: getChildId,
+  isValidStudentId: isValidStudentId,
+  ensureStudentId: ensureStudentId,
+  bindParentByToken: bindParentByToken,
+  getChildPsychReports: getChildPsychReports,
+  getChildPsychStatus: getChildPsychStatus,
+  getParentAlerts: getParentAlerts,
+  markAlertRead: markAlertRead,
+  markAllAlertsRead: markAllAlertsRead,
+  getChildPsychReportDetail: getChildPsychReportDetail
 };

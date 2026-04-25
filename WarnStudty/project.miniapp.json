@@ -1,7 +1,7 @@
 {
   "miniVersion": "v2",
-  "name": "WarmStudy",
-  "version": "0.0.9",
+  "name": "暖学帮",
+  "version": "0.1.0",
   "versionCode": 100,
   "i18nFilePath": "i18n",
   "mini-ohos": {
